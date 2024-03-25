@@ -1,0 +1,15 @@
+POST http://localhost:8200/api/role/admin
+Content-Type: application/json
+
+{
+
+}
+
+###
+
+POST http://localhost:8200/api/role/user
+Content-Type: application/json
+
+{
+
+}
