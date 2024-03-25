@@ -28,8 +28,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(String id) {
-        return userRepository.findById(id);
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
@@ -55,12 +55,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(UserCreateRequest userCreateRequest) {
-
-        String userId = userCreateRequest.getId();
-
-        if(!userRepository.existsById(userId))
-            throw new UserNotFoundException(userId);
+    public void updateUser(UserCreateRequest userCreateRequest, String userId) {
+        User existedUser = userRepository.findById(userId).orElse(null);
 
         User user = User.builder()
                 .id(userCreateRequest.getId())
@@ -68,6 +64,9 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateRequest.getEmail())
                 .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
+                .createdAt(existedUser.getCreatedAt())
+                .latestLoginAt(LocalDateTime.now())
+                .role(roleRepository.findByName("ROLE_USER"))
                 .build();
 
         userRepository.save(user);

@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/myPage")
-    public ResponseEntity<Optional<User>> findUser(@RequestHeader("X-USER-ID") String id)
+    public ResponseEntity<User> findUser(@RequestHeader("X-USER-ID") String id)
     {
         return ResponseEntity.ok().body(userService.getUserById(id));
     }
@@ -38,14 +38,14 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateUser(@RequestBody UserCreateRequest userCreateRequest)
+    public ResponseEntity<Void> updateUser(@RequestBody UserCreateRequest userCreateRequest, @RequestHeader("X-USER-ID") String id)
     {
-        userService.updateUser(userCreateRequest);
+        userService.updateUser(userCreateRequest, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@RequestBody String id)
+    public ResponseEntity<Void> deleteUser(@RequestHeader("X-USER-ID") String id)
     {
         userService.deleteUser(id);
         return ResponseEntity.status(HttpStatus.OK).build();
