@@ -3,10 +3,7 @@ package com.user.management.service.impl;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.User;
-import com.user.management.exception.InvalidPasswordException;
-import com.user.management.exception.UserAlreadyExistException;
-import com.user.management.exception.UserNotFoundException;
-import com.user.management.exception.UserOnlyUpdateOwnData;
+import com.user.management.exception.*;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -26,7 +23,12 @@ public class UserServiceImpl implements UserService {
     private final StatusRepository statusRepository;
     
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(String id) {
+        User accessUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+
+        if(accessUser.getRole().getId() != 1L)
+            throw new OnlyAdminCanAccessUserDataException();
+
         return userRepository.findAll();
     }
 
@@ -73,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
         if(!userId.equals(userCreateRequest.getId()))
-            throw new UserOnlyUpdateOwnData();
+            throw new UserOnlyUpdateOwnDataException();
 
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 

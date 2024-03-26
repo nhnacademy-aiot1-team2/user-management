@@ -1,3 +1,5 @@
+
+// 모든 UserList 조회 가능
 GET http://localhost:8200/api/user
 Accept: application/json
 

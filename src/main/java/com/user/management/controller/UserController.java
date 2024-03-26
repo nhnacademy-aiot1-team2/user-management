@@ -19,9 +19,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> findAllUsers()
+    public ResponseEntity<List<User>> findAllUsers(@RequestHeader("X-USER-ID") String id)
     {
-        return ResponseEntity.ok().body(userService.getAllUsers());
+        return ResponseEntity.ok().body(userService.getAllUsers(id));
     }
 
     @GetMapping("/myPage")

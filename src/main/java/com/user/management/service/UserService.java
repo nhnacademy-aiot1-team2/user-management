@@ -5,10 +5,9 @@ import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<User> getAllUsers(String id);
 
     User getUserById(String id);
     public User getUserLogin(UserLoginRequest userLoginRequest);
