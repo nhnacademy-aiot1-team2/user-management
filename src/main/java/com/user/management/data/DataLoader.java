@@ -20,11 +20,21 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        statusRepository.save(new Status(1L, "ACTIVE"));
-        statusRepository.save(new Status(2L, "INACTIVE"));
-        statusRepository.save(new Status(3L, "DEACTIVATE"));
+        if (!statusRepository.existsById(1L)) {
+            statusRepository.save(new Status(1L, "ACTIVE")); // 기본 상태
+        }
+        if (!statusRepository.existsById(2L)) {
+            statusRepository.save(new Status(2L, "INACTIVE")); // 휴면 상태
+        }
+        if (!statusRepository.existsById(3L)) {
+            statusRepository.save(new Status(3L, "DEACTIVATE")); // 탈퇴 상태
+        }
 
-        roleRepository.save(new Role(1L, "ROLE_ADMIN"));
-        roleRepository.save(new Role(2L, "ROLE_USER"));
+        if (!roleRepository.existsById(1L)) {
+            roleRepository.save(new Role(1L, "ROLE_ADMIN")); // 어드민
+        }
+        if (!roleRepository.existsById(2L)) {
+            roleRepository.save(new Role(2L, "ROLE_USER")); // 유저
+        }
     }
 }
