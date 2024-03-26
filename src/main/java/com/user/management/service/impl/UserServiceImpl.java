@@ -1,7 +1,9 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.UserCreateRequest;
+import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.User;
+import com.user.management.exception.InvalidPasswordException;
 import com.user.management.exception.UserAlreadyExistException;
 import com.user.management.exception.UserNotFoundException;
 import com.user.management.repository.RoleRepository;
@@ -30,6 +32,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(String id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    @Override
+    public User getUserLogin(UserLoginRequest userLoginRequest)
+    {
+        User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
+        if (!user.getPassword().equals(userLoginRequest.getPassword())) {
+            throw new InvalidPasswordException();
+        }
+        return user;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.user.management.controller;
 
 import com.user.management.dto.UserCreateRequest;
+import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.User;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,12 @@ public class UserController {
     {
         userService.createUser(userCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@RequestBody UserLoginRequest userLoginRequest)
+    {
+        return ResponseEntity.ok().body(userService.getUserLogin(userLoginRequest));
     }
 
     @PutMapping
