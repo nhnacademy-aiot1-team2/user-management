@@ -1,6 +1,7 @@
 
 // 모든 UserList 조회 가능
 GET http://localhost:8200/api/user
+X-USER-ID:admin
 Accept: application/json
 
 ###
@@ -39,7 +40,7 @@ X-USER-ID:jjunho50
 Content-Type: application/json
 
 {
-  "id": "asdf",
+  "id": "jjunho50",
   "name": "정준호",
   "password": "1234",
   "email": "updated@gmail.com",
