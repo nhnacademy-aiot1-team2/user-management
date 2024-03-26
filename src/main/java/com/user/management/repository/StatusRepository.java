@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StatusRepository extends JpaRepository<Status, Long> {
 
-
     // 1. 일반 회원
     default Status getActiveStatus() {
         return findById(1L).orElse(null);
