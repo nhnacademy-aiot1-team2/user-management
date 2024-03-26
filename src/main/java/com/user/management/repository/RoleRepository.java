@@ -4,5 +4,13 @@ import com.user.management.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleRepository extends JpaRepository<Role,Long > {
-    Role findByName(String roleName);
+
+    default Role getAdminRole()
+    {
+        return findById(1L).orElse(null);
+    }
+    default Role getUserRole()
+    {
+        return findById(2L).orElse(null);
+    }
 }

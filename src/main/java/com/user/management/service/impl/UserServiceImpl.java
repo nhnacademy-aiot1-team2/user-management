@@ -1,11 +1,11 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.UserCreateRequest;
-import com.user.management.entity.Role;
 import com.user.management.entity.User;
 import com.user.management.exception.UserAlreadyExistException;
 import com.user.management.exception.UserNotFoundException;
 import com.user.management.repository.RoleRepository;
+import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +20,7 @@ public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final StatusRepository statusRepository;
     
     @Override
     public List<User> getAllUsers() {
@@ -46,8 +46,11 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateRequest.getEmail())
                 .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
-                .role(roleRepository.findByName("ROLE_USER"))
+                .role(roleRepository.getUserRole())
+                .status(statusRepository.getActiveStatus())
                 .createdAt(LocalDateTime.now())
+                .latestLoginAt(LocalDateTime.now())
+                // 회원가입을 해도, 로그인을 하기 전까지는 null로 두려 했는데, 휴면 상태인지 체크할때 null이 문제될까봐 회원가입과 동시에 로그인 날짜가 갱신된다.
                 .build();
 
         userRepository.save(user);
@@ -56,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
-        User existedUser = userRepository.findById(userId).orElse(null);
+        User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         User user = User.builder()
                 .id(userCreateRequest.getId())
@@ -66,7 +69,8 @@ public class UserServiceImpl implements UserService {
                 .password(userCreateRequest.getPassword())
                 .createdAt(existedUser.getCreatedAt())
                 .latestLoginAt(LocalDateTime.now())
-                .role(roleRepository.findByName("ROLE_USER"))
+                .status(statusRepository.getActiveStatus())
+                .role(roleRepository.getUserRole())
                 .build();
 
         userRepository.save(user);
@@ -74,7 +78,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String id) {
-        userRepository.deleteById(id);
+    public void deleteUser(String userId) {
+        User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        User user = User.builder()
+                .id(existedUser.getId())
+                .name(existedUser.getName())
+                .email(existedUser.getEmail())
+                .birth(existedUser.getBirth())
+                .password(existedUser.getPassword())
+                .createdAt(existedUser.getCreatedAt())
+                .role(existedUser.getRole())
+                .latestLoginAt(LocalDateTime.now())
+                .status(statusRepository.getDeactivatedStatus())
+                .build();
+
+        userRepository.save(user);
     }
 }

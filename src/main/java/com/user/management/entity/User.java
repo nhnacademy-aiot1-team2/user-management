@@ -26,8 +26,12 @@ public class User {
     private String birth; // 생일(8자리)
 
     @ManyToOne
-    @JoinColumn(name = "role_name")
+    @JoinColumn(name = "role_id")
     private Role role;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id")
+    private Status status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt; // 회원가입일자
@@ -36,13 +40,15 @@ public class User {
     private LocalDateTime latestLoginAt; // 마지막 접속일
 
     @Builder
-    public User(String id, String name, String password, String email, String birth, Role role, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
+
+    public User(String id, String name, String password, String email, String birth, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.email = email;
         this.birth = birth;
         this.role = role;
+        this.status = status;
         this.createdAt = createdAt;
         this.latestLoginAt = latestLoginAt;
     }
