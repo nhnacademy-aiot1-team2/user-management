@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8200/api/user
+POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
@@ -37,7 +37,7 @@ X-USER-ID:jjunho50
 Content-Type: application/json
 
 {
-  "id": "jjunho50",
+  "id": "asdf",
   "name": "정준호",
   "password": "1234",
   "email": "updated@gmail.com",
@@ -48,3 +48,6 @@ Content-Type: application/json
 
 DELETE http://localhost:8200/api/user
 X-USER-ID:jjunho50
+
+###
+
