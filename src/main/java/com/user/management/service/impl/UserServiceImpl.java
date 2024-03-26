@@ -6,6 +6,7 @@ import com.user.management.entity.User;
 import com.user.management.exception.InvalidPasswordException;
 import com.user.management.exception.UserAlreadyExistException;
 import com.user.management.exception.UserNotFoundException;
+import com.user.management.exception.UserOnlyUpdateOwnData;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -71,6 +72,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
+        if(!userId.equals(userCreateRequest.getId()))
+            throw new UserOnlyUpdateOwnData();
+
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         User user = User.builder()

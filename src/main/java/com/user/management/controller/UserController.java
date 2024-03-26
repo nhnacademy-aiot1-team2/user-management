@@ -30,7 +30,7 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUserById(id));
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<Void> createUser(@RequestBody UserCreateRequest userCreateRequest)
     {
         userService.createUser(userCreateRequest);
