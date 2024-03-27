@@ -3,7 +3,6 @@ package com.user.management.controller;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
-import com.user.management.entity.User;
 import com.user.management.exception.UserHeaderNotFoundException;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -71,7 +70,7 @@ public class UserController {
      * @return 로그인한 사용자 정보
      */
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody UserLoginRequest userLoginRequest)
+    public ResponseEntity<UserDataResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest)
     {
         return ResponseEntity.ok().body(userService.getUserLogin(userLoginRequest));
     }

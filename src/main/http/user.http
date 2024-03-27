@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
   "id": "admin",
-  "password": "admin"
+  "password": "1234"
 }
 
 ###
@@ -26,10 +26,10 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "jjunho50",
-  "name": "정준호",
-  "password": "1234",
-  "email": "jjunho50@gmail.com",
+  "id": "asdf",
+  "name": "asdf",
+  "password": "asdf",
+  "email": "asdf@gmail.com",
   "birth": "19991102"
 }
 

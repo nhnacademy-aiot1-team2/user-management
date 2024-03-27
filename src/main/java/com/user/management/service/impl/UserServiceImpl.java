@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
      * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
-    public User getUserLogin(UserLoginRequest userLoginRequest) {
+    public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
         if(user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
@@ -82,7 +82,10 @@ public class UserServiceImpl implements UserService {
         if (!user.getPassword().equals(CryptoUtil.sha256(userLoginRequest.getPassword(), user.getSalt()))) {
             throw new InvalidPasswordException();
         }
-        return user;
+
+
+        return new UserDataResponse(user.getId(), user.getName(), user.getEmail()
+                , user.getBirth(), user.getRole().getName(), user.getStatus().getName());
     }
 
     /**
@@ -187,6 +190,11 @@ public class UserServiceImpl implements UserService {
      */
     public void checkAndUpdateInactivity(User existedUser) {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+
+        // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
+        if(existedUser.getLatestLoginAt() == null)
+            return;
+
         if(existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
 

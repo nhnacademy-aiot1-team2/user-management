@@ -10,6 +10,11 @@ import java.security.SecureRandom;
  */
 public class CryptoUtil {
 
+    private CryptoUtil()
+    {
+        throw new IllegalStateException("Util 클래스는 인스턴스화 할 수 없습니다.");
+    }
+
     /**
      * SecureRandom 객체를 사용하여 20 바이트의 무작위 salt 값을 생성합니다.
      *
@@ -17,7 +22,7 @@ public class CryptoUtil {
      */
     public static String getSalt() {
         SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
+        byte[] bytes = new byte[20];
         random.nextBytes(bytes);
         return new String(bytes);
     }
