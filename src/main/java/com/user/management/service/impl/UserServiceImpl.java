@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
      * 새로운 사용자를 등록하는 메소드입니다.
      * 등록하려는 사용자 ID가 이미 대응하는 사용자가 있는 경우 예외를 발생시킵니다.
      *
-     * @param userCreateRequest 사용자 생성 요청 정보
+     * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email, birth)
      * @throws UserAlreadyExistException 사용자가 이미 존재할 때 발생하는 예외
      */
     @Override
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
      * 사용자 정보를 업데이트하는 메소드입니다.
      * 요청 사용자와 변경하려는 사용자가 같지 않으면 예외를 발생시킵니다.
      *
-     * @param userCreateRequest 사용자 업데이트 요청 정보
+     * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
      * @param userId 업데이트하려는 사용자의 ID
      * @throws UserOnlyUpdateOwnDataException 요청 사용자와 변경하려는 사용자가 다를 때 발생하는 예외
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
@@ -126,16 +126,13 @@ public class UserServiceImpl implements UserService {
 
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
-        User user = User.builder()
+        User user = existedUser.toBuilder()
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
                 .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
-                .createdAt(existedUser.getCreatedAt())
                 .latestLoginAt(LocalDateTime.now())
-                .status(statusRepository.getActiveStatus())
-                .role(roleRepository.getUserRole())
                 .build();
 
         userRepository.save(user);
@@ -152,14 +149,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String userId) {
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
-        User user = User.builder()
-                .id(existedUser.getId())
-                .name(existedUser.getName())
-                .email(existedUser.getEmail())
-                .birth(existedUser.getBirth())
-                .password(existedUser.getPassword())
-                .createdAt(existedUser.getCreatedAt())
-                .role(existedUser.getRole())
+        User user = existedUser.toBuilder()
                 .latestLoginAt(LocalDateTime.now())
                 .status(statusRepository.getDeactivatedStatus())
                 .build();
@@ -190,16 +180,8 @@ public class UserServiceImpl implements UserService {
         if(existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
 
-            User user = User.builder()
-                    .id(existedUser.getId())
-                    .name(existedUser.getName())
-                    .email(existedUser.getEmail())
-                    .birth(existedUser.getBirth())
-                    .password(existedUser.getPassword())
-                    .createdAt(existedUser.getCreatedAt())
-                    .latestLoginAt(existedUser.getLatestLoginAt())
+            User user = existedUser.toBuilder()
                     .status(inActiveStatus)
-                    .role(roleRepository.getUserRole())
                     .build();
 
             userRepository.save(user);

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(toBuilder = true)
 @Table(name = "Users")
 public class User {
     @Id
