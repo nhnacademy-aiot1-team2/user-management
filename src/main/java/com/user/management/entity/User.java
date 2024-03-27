@@ -39,11 +39,10 @@ public class User {
 
     @Column(name = "latest_login_at")
     private LocalDateTime latestLoginAt; // 마지막 접속일
-
-
+    private String salt;
 
     @Builder
-    public User(String id, String name, String password, String email, String birth, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
+    public User(String id, String name, String password, String email, String birth, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt, String salt) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -53,5 +52,6 @@ public class User {
         this.status = status;
         this.createdAt = createdAt;
         this.latestLoginAt = latestLoginAt;
+        this.salt = salt;
     }
 }

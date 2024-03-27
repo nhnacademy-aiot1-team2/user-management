@@ -10,6 +10,7 @@ import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
+import com.user.management.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -69,12 +70,16 @@ public class UserServiceImpl implements UserService {
      * @return 로그인된 User 정보
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      * @throws InvalidPasswordException 비밀번호가 일치하지 않을 때 발생하는 예외
+     * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
-    public User getUserLogin(UserLoginRequest userLoginRequest)
-    {
+    public User getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
-        if (!user.getPassword().equals(userLoginRequest.getPassword())) {
+
+        if(user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
+            throw new AdminMustUpdatePasswordException();
+
+        if (!user.getPassword().equals(CryptoUtil.sha256(userLoginRequest.getPassword(), user.getSalt()))) {
             throw new InvalidPasswordException();
         }
         return user;
@@ -89,7 +94,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void createUser(UserCreateRequest userCreateRequest) {
-
+        String salt = CryptoUtil.getSalt();
         String userId = userCreateRequest.getId();
 
         if(userRepository.existsById(userId))
@@ -100,7 +105,8 @@ public class UserServiceImpl implements UserService {
                 .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
                 .birth(userCreateRequest.getBirth())
-                .password(userCreateRequest.getPassword())
+                .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
+                .salt(salt)
                 .role(roleRepository.getUserRole())
                 .status(statusRepository.getActiveStatus())
                 .createdAt(LocalDateTime.now())
@@ -111,28 +117,30 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
     }
-
     /**
      * 사용자 정보를 업데이트하는 메소드입니다.
      * 요청 사용자와 변경하려는 사용자가 같지 않으면 예외를 발생시킵니다.
      *
      * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
      * @param userId 업데이트하려는 사용자의 ID
-     * @throws UserOnlyUpdateOwnDataException 요청 사용자와 변경하려는 사용자가 다를 때 발생하는 예외
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
+     * @throws UserAlreadyExistException 변경하는 userId가 이미 존재하는 userId 일 때 발생하는 예외
      */
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
-        if(!userId.equals(userCreateRequest.getId()))
-            throw new UserOnlyUpdateOwnDataException();
+        String changedId = userCreateRequest.getId();
+        if(userRepository.existsById(changedId) && !userId.equals(changedId))
+            throw new UserAlreadyExistException(changedId);
 
+        String salt = CryptoUtil.getSalt();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         User user = existedUser.toBuilder()
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
                 .birth(userCreateRequest.getBirth())
-                .password(userCreateRequest.getPassword())
+                .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
+                .salt(salt)
                 .latestLoginAt(LocalDateTime.now())
                 .status(statusRepository.getActiveStatus())
                 .build();

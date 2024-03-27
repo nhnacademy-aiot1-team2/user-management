@@ -6,6 +6,7 @@ import com.user.management.entity.User;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.UserRepository;
+import com.user.management.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -52,12 +53,15 @@ public class DataLoader implements CommandLineRunner {
 
         if(!userRepository.existsById(ADMIN))
         {
+            String salt = CryptoUtil.getSalt();
+
             userRepository.save(User.builder()
                     .id(ADMIN)
-                    .password(ADMIN)
+                    .password(CryptoUtil.sha256(ADMIN, salt))
+                    .salt(salt)
                     .name(ADMIN)
                     .createdAt(LocalDateTime.now()) // 계정 생성 시각
-                    .latestLoginAt(LocalDateTime.now()) // 최근 로그인 시각
+                    .latestLoginAt(null) //
                     .birth("12341122") // 생년월일
                     .email("admin@example.com") // 이메일
                     .status(statusRepository.getActiveStatus()) // 상태는 'ACTIVE'(활성)
