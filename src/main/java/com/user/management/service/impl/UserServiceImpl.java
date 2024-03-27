@@ -1,6 +1,7 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.UserCreateRequest;
+import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
@@ -33,38 +34,39 @@ public class UserServiceImpl implements UserService {
      * (오직 관리자만 접근 가능한 메소드입니다.)
      *
      * @param id 인증된 사용자의 ID
-     * @return 모든 사용자의 정보
+     * @return List<UserDataResponse>
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      * @throws OnlyAdminCanAccessUserDataException 인증된 사용자가 관리자 역할을 가지지 않을 때 발생하는 예외
      */
     @Override
-    public List<User> getAllUsers(String id) {
-        User accessUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    public List<UserDataResponse> getAllUsers(String id)
+    {
+        if(!userRepository.existsById(id)) throw new UserNotFoundException(id);
 
-        if(accessUser.getRole().getId() != 1L)
+        if(userRepository.getRoleByUserId(id).getId() != 1L)
             throw new OnlyAdminCanAccessUserDataException();
 
-        return userRepository.findAll();
+        return userRepository.getAllUserData();
     }
 
     /**
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.
      *
      * @param id 조회하려는 사용자의 ID
-     * @return 사용자의 정보
+     * @return UserDataResponse (id, name, email, birth, roleName, statusName)
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
-    public User getUserById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    public UserDataResponse getUserById(String id) {
+        return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     /**
      * 사용자 로그인을 처리하는 메소드입니다.
      * 사용자 ID와 비밀번호를 통해 로그인을 하게 됩니다.
      *
-     * @param userLoginRequest 사용자 로그인 요청 정보
-     * @return 로그인된 사용자의 정보
+     * @param userLoginRequest 사용자 로그인 요청 정보 (id, password)
+     * @return 로그인된 User 정보
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      * @throws InvalidPasswordException 비밀번호가 일치하지 않을 때 발생하는 예외
      */
@@ -125,7 +127,6 @@ public class UserServiceImpl implements UserService {
             throw new UserOnlyUpdateOwnDataException();
 
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
         User user = existedUser.toBuilder()
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
@@ -133,6 +134,7 @@ public class UserServiceImpl implements UserService {
                 .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
                 .latestLoginAt(LocalDateTime.now())
+                .status(statusRepository.getActiveStatus())
                 .build();
 
         userRepository.save(user);

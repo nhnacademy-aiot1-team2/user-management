@@ -1,6 +1,7 @@
 package com.user.management.controller;
 
 import com.user.management.dto.UserCreateRequest;
+import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.User;
 import com.user.management.exception.UserHeaderNotFoundException;
@@ -29,7 +30,7 @@ public class UserController {
      * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
      */
     @GetMapping
-    public ResponseEntity<List<User>> findAllUsers(@RequestHeader(value = "X-USER-ID", required = false) String id)
+    public ResponseEntity<List<UserDataResponse>> findAllUsers(@RequestHeader(value = "X-USER-ID", required = false) String id)
     {
         if(id == null)
             throw new UserHeaderNotFoundException();
@@ -44,7 +45,7 @@ public class UserController {
      * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
      */
     @GetMapping("/myPage")
-    public ResponseEntity<User> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id)
+    public ResponseEntity<UserDataResponse> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id)
     {
         if(id == null)
             throw new UserHeaderNotFoundException();
