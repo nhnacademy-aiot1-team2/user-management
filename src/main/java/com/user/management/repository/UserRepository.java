@@ -3,6 +3,8 @@ package com.user.management.repository;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.entity.Role;
 import com.user.management.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @return List<UserDataResponse>
      */
     @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name) FROM User u")
-    List<UserDataResponse> getAllUserData();
+    Page<UserDataResponse> getAllUserData(Pageable pageable);
 
     /**
      * 주어진 ID에 해당하는 사용자 정보를 조회하여 반환합니다.

@@ -12,6 +12,8 @@ import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
 import com.user.management.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,24 +33,25 @@ public class UserServiceImpl implements UserService {
     private final StatusRepository statusRepository;
 
     /**
-     * 모든 사용자의 정보를 반환하는 메소드입니다.
-     * (오직 관리자만 접근 가능한 메소드입니다.)
+     * 모든 사용자 정보를 가져옵니다. (관리자만 요청 가능)
      *
-     * @param id 인증된 사용자의 ID
-     * @return List<UserDataResponse>
-     * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
-     * @throws OnlyAdminCanAccessUserDataException 인증된 사용자가 관리자 역할을 가지지 않을 때 발생하는 예외
+     * @param id       검증할 사용자 ID, 없으면 예외 발생
+     * @param pageable 페이징 정보
+     * @return         사용자 정보를 포함하는 Page<UserDataResponse> 객체
+     * @throws UserNotFoundException 이 메서드는 사용자 ID가 존재하지 않을 경우 이 예외를 발생시킵니다.
+     * @throws OnlyAdminCanAccessUserDataException 이 메서드는 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
-    public List<UserDataResponse> getAllUsers(String id)
+    public Page<UserDataResponse> getAllUsers(String id, Pageable pageable)
     {
         if(!userRepository.existsById(id)) throw new UserNotFoundException(id);
 
         if(userRepository.getRoleByUserId(id).getId() != 1L)
             throw new OnlyAdminCanAccessUserDataException();
 
-        return userRepository.getAllUserData();
+        return userRepository.getAllUserData(pageable);
     }
+
 
     /**
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.

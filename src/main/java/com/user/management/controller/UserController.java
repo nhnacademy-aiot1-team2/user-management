@@ -6,6 +6,8 @@ import com.user.management.dto.UserLoginRequest;
 import com.user.management.exception.UserHeaderNotFoundException;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,25 +25,28 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * 사용자 ID를 기반으로 모든 사용자 정보를 검색하는 메소드
-     * @param id 사용자 ID
-     * @return DB에 저장된 모든 UserList
-     * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
+     * 'X-USER-ID' userId로 관리자의 요청인지 식별
+     *
+     * @param id       'X-USER-ID' 헤더의 사용자 ID, 이 값이 없으면 예외 발생
+     * @param pageable 페이징 정보, 기본값은 page=0&size=5 (설정은 application-prod.properties 참조)
+     * @return         사용자 정보를 포함하는 리스트, 응답은 UserDataResponse 리스트 형태로 반환
      */
     @GetMapping
-    public ResponseEntity<List<UserDataResponse>> findAllUsers(@RequestHeader(value = "X-USER-ID", required = false) String id)
+    public ResponseEntity<List<UserDataResponse>> findAllUsers(@RequestHeader(value = "X-USER-ID", required = false) String id, Pageable pageable)
     {
         if(id == null)
             throw new UserHeaderNotFoundException();
 
-        return ResponseEntity.ok().body(userService.getAllUsers(id));
+        Page<UserDataResponse> userPage = userService.getAllUsers(id, pageable);
+
+        return ResponseEntity.ok().body(userPage.getContent());
     }
 
     /**
      * 사용자 ID를 기반으로 특정 사용자 정보를 조회하는 메소드
      * @param id 사용자 ID
      * @return 검색된 사용자 정보
-     * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
+     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
      */
     @GetMapping("/myPage")
     public ResponseEntity<UserDataResponse> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id)
