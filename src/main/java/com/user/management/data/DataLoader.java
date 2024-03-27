@@ -12,16 +12,25 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/**
+ * 데이터 로더 클래스, 서버 시작 시 초기 데이터를 주입합니다.
+ * {@link CommandLineRunner} 인터페이스를 구현하여 파라미터로 전달된 문자열 배열을 처리하는 run 메소드를 오버라이드합니다.
+ */
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
-    private static final String ADMIN_ID = "admin";
+    private static final String ADMIN = "admin";
 
     private final StatusRepository statusRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
-
+    /**
+     * 핵심 비즈니스 로직을 실행하는 메소드.
+     * 사용자의 Status, Role 에 대한 초기 데이터를 설정하고, 관리자 계정을 생성합니다.
+     * @param args 문자열 배열
+     * @throws Exception 예외 처리를 위한 Exception 클래스 적용
+     */
     @Override
     public void run(String... args) throws Exception {
         if (!statusRepository.existsById(1L)) {
@@ -35,25 +44,24 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (!roleRepository.existsById(1L)) {
-            roleRepository.save(new Role(1L, "ROLE_ADMIN")); // 어드민
+            roleRepository.save(new Role(1L, "ROLE_ADMIN")); // 관리자
         }
         if (!roleRepository.existsById(2L)) {
-            roleRepository.save(new Role(2L, "ROLE_USER")); // 유저
+            roleRepository.save(new Role(2L, "ROLE_USER")); // 사용자
         }
 
-
-        if(!userRepository.existsById(ADMIN_ID))
+        if(!userRepository.existsById(ADMIN))
         {
             userRepository.save(User.builder()
-                    .id(ADMIN_ID)
-                    .password(ADMIN_ID)
-                    .name(ADMIN_ID)
-                    .createdAt(LocalDateTime.now())
-                    .latestLoginAt(LocalDateTime.now())
-                    .birth("12341122")
-                    .email("admin@example.com")
-                    .status(statusRepository.getActiveStatus())
-                    .role(roleRepository.getAdminRole())
+                    .id(ADMIN)
+                    .password(ADMIN)
+                    .name(ADMIN)
+                    .createdAt(LocalDateTime.now()) // 계정 생성 시각
+                    .latestLoginAt(LocalDateTime.now()) // 최근 로그인 시각
+                    .birth("12341122") // 생년월일
+                    .email("admin@example.com") // 이메일
+                    .status(statusRepository.getActiveStatus()) // 상태는 'ACTIVE'(활성)
+                    .role(roleRepository.getAdminRole()) // 역할은 'ROLE_ADMIN'(관리자)
                     .build());
         }
     }

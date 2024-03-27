@@ -35,7 +35,7 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:8200/api/user
+PUT http://localhost:8200/api/user/update
 X-USER-ID:jjunho50
 Content-Type: application/json
 
@@ -49,7 +49,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8200/api/user
+DELETE http://localhost:8200/api/user/delete
 X-USER-ID:jjunho50
 
 ###

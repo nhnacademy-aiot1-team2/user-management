@@ -39,6 +39,8 @@ public class User {
     @Column(name = "latest_login_at")
     private LocalDateTime latestLoginAt; // 마지막 접속일
 
+
+
     @Builder
     public User(String id, String name, String password, String email, String birth, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.id = id;
