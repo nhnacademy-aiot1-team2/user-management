@@ -60,17 +60,8 @@ class UserControllerTest {
                 "userLoginRequestId",
                 "testPassword"
         );
-        user = new User(
-                "userId",
-                "testName",
-                "testPassword",
-                "testEmail",
-                "testBirth",
-                new Role(1L, "testName"),
-                new Status(1L, "testName"),
-                null,
-                null
-        );
+        user = User.builder()
+                .id("userId").build();
         userDataResponse1 = new UserDataResponse(
                 "userDataResponse1Id",
                 "testName",

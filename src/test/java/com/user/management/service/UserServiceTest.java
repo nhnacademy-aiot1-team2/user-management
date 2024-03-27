@@ -2,6 +2,7 @@ package com.user.management.service;
 
 import com.user.management.dto.UserDataResponse;
 import com.user.management.entity.Role;
+import com.user.management.entity.Status;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -17,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -48,9 +52,16 @@ class UserServiceTest {
     @Order(4)
     void createUser() {
 
-//        Mockito.when(roleRepository.getUserRole()).thenReturn(new Role(1L, "ROLE_TEST"));
-//        Mocki
-//
+
+
+        Mockito.when(userRepository.existsById(any(String.class))).thenReturn(false);
+        Mockito.when(roleRepository.getUserRole()).thenReturn(new Role(1L, "ROLE_TEST"));
+        Mockito.when(statusRepository.getActiveStatus()).thenReturn(new Status(1L, "STATUS_TEST"));
+
+        userService.createUser(null);
+        verify(userRepository).save(null);
+
+
     }
 
 }
