@@ -97,19 +97,24 @@ public class UserServiceImpl implements UserService {
      *
      * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email, birth)
      * @throws UserAlreadyExistException 사용자가 이미 존재할 때 발생하는 예외
+     * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
     public void createUser(UserCreateRequest userCreateRequest) {
         String salt = CryptoUtil.getSalt();
         String userId = userCreateRequest.getId();
+        String userEmail = userCreateRequest.getEmail();
 
         if(userRepository.existsById(userId))
             throw new UserAlreadyExistException(userId);
 
+        if(userRepository.getByEmail(userEmail).orElse(null) == null)
+            throw new AlreadyExistEmailException(userEmail);
+
         User user = User.builder()
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
-                .email(userCreateRequest.getEmail())
+                .email(userEmail)
                 .birth(userCreateRequest.getBirth())
                 .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
                 .salt(salt)
@@ -126,24 +131,29 @@ public class UserServiceImpl implements UserService {
     /**
      * 사용자 정보를 업데이트하는 메소드입니다.
      * 요청 사용자와 변경하려는 사용자가 같지 않으면 예외를 발생시킵니다.
-     *
+     * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
      * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
      * @param userId 업데이트하려는 사용자의 ID
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      * @throws UserAlreadyExistException 변경하는 userId가 이미 존재하는 userId 일 때 발생하는 예외
+     * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
         String changedId = userCreateRequest.getId();
+        String userEmail = userCreateRequest.getEmail();
+
         if(userRepository.existsById(changedId) && !userId.equals(changedId))
             throw new UserAlreadyExistException(changedId);
+
+        if(userRepository.getByEmail(userEmail).orElse(null) == null)
+            throw new AlreadyExistEmailException(userEmail);
 
         String salt = CryptoUtil.getSalt();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         User user = existedUser.toBuilder()
-                .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
-                .email(userCreateRequest.getEmail())
+                .email(userEmail)
                 .birth(userCreateRequest.getBirth())
                 .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
                 .salt(salt)

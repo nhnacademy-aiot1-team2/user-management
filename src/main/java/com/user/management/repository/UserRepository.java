@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,4 +41,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name) FROM User u WHERE u.id = :id")
     Optional<UserDataResponse> getUserById(@Param("id") String userId);
+
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> getByEmail(@Param("email") String email);
 }
