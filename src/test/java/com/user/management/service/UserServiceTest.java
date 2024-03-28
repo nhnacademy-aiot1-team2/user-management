@@ -17,6 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,15 +48,18 @@ class UserServiceTest {
         UserDataResponse testU1 = new UserDataResponse();
         UserDataResponse testU2 = new UserDataResponse();
 
-        List<UserDataResponse> expect = new ArrayList<>();
-        expect.add(testU1);
-        expect.add(testU2);
+        List<UserDataResponse> testList = new ArrayList<>();
+        testList.add(testU1);
+        testList.add(testU2);
+        Page<UserDataResponse> expect = new PageImpl<>(testList);
 
         Mockito.when(userRepository.existsById(any(String.class))).thenReturn(true);
         Mockito.when(userRepository.getRoleByUserId(any(String.class))).thenReturn(new Role(1L, "TEST_ROLE"));
-        Mockito.when(userRepository.getAllUserData()).thenReturn(expect);
+        Mockito.when(userRepository.getAllUserData(any(Pageable.class))).thenReturn(expect);
 
-        Assertions.assertEquals(expect, userService.getAllUsers("testId"));
+        Pageable pageable = PageRequest.of(5, 5);
+
+        Assertions.assertEquals(expect, userService.getAllUsers("testId", pageable));
     }
 
     @Test

@@ -16,6 +16,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -87,7 +90,9 @@ class UserControllerTest {
         List<UserDataResponse> testList = new ArrayList<>();
         testList.add(userDataResponse1);
         testList.add(userDataResponse2);
-        given(userService.getAllUsers(any(String.class))).willReturn(testList);
+        Page<UserDataResponse> testPage = new PageImpl<>(testList);
+
+        given(userService.getAllUsers(any(String.class), any(Pageable.class))).willReturn(testPage);
 
         mockMvc.perform(get("/api/user")
                         .contentType(MediaType.APPLICATION_JSON)
