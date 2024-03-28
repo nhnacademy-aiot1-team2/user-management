@@ -51,4 +51,20 @@ public class CryptoUtil {
             return null;
         }
     }
+
+
+    // 암호화 메소드
+//    public static void main(String[] args) {
+//        StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+//        encryptor.setPassword("encryptorPassword");
+//        encryptor.setAlgorithm("PBEWithMD5AndDES");
+//
+//        String originalPassword = "http://admin:1234@localhost:8761/eureka,http://admin:1234@localhost:8762/eureka";
+//        String encryptedPassword = encryptor.encrypt(originalPassword);
+//        String decryptedPassword = encryptor.decrypt(encryptedPassword);
+//
+//        System.out.println("Original password: " + originalPassword);
+//        System.out.println("Encrypted password: " + encryptedPassword);
+//        System.out.println("Decrypted password: " + decryptedPassword);
+//    }
 }

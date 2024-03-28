@@ -7,6 +7,7 @@ import com.user.management.exception.UserHeaderNotFoundException;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,19 +25,26 @@ public class UserController {
 
     private final UserService userService;
 
+
     /**
-     * 'X-USER-ID' userId로 관리자의 요청인지 식별
+     * 모든 사용자 정보를 조회하는 메서드입니다.
      *
-     * @param id       'X-USER-ID' 헤더의 사용자 ID, 이 값이 없으면 예외 발생
-     * @param pageable 페이징 정보, 기본값은 page=0&size=5 (설정은 application-prod.properties 참조)
-     * @return         사용자 정보를 포함하는 리스트, 응답은 UserDataResponse 리스트 형태로 반환
+     * @param id 사용자 ID를 포함하는 'X-USER-ID' 요청 헤더.
+     * @param page 페이징 정보 (어떤 페이지를 조회할지) 를 제공하는 매개변수입니다.
+     * @param size 한 페이지에 얼마나 많은 항목을 보여줄지를 결정하는 매개변수입니다.
+     * @return 사용자 정보의 부분 리스트를 담은 ResponseEntity를 돌려줍니다.
+     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
      */
     @GetMapping
-    public ResponseEntity<List<UserDataResponse>> findAllUsers(@RequestHeader(value = "X-USER-ID", required = false) String id, Pageable pageable)
+    public ResponseEntity<List<UserDataResponse>> findAllUsers(
+            @RequestHeader(value = "X-USER-ID", required = false) String id,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) int size)
     {
         if(id == null)
             throw new UserHeaderNotFoundException();
 
+        Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getAllUsers(id, pageable);
 
         return ResponseEntity.ok().body(userPage.getContent());

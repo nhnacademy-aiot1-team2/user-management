@@ -1,6 +1,6 @@
 
 // 모든 UserList 조회 가능
-GET http://localhost:8200/api/user
+GET http://localhost:8200/api/user?page=0&size=3
 X-USER-ID:admin
 Accept: application/json
 
@@ -26,7 +26,7 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "asdf",
+  "id": "test4",
   "name": "asdf",
   "password": "asdf",
   "email": "asdf@gmail.com",
