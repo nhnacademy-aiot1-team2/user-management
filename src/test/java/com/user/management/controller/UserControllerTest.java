@@ -127,7 +127,7 @@ class UserControllerTest {
     @Order(4)
     @DisplayName("로그인")
     void loginUser() throws Exception {
-        given(userService.getUserLogin(any(UserLoginRequest.class))).willReturn(user);
+        given(userService.getUserLogin(any(UserLoginRequest.class))).willReturn(userDataResponse1);
 
         mockMvc.perform(post("/api/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,7 +135,7 @@ class UserControllerTest {
                         .headers(httpHeaders))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.id").value("userId"));
+                .andExpect(jsonPath("$.id").value("userDataResponse1Id"));
     }
 
     @Test
