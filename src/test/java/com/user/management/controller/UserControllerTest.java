@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
-import com.user.management.entity.Role;
-import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
