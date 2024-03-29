@@ -28,7 +28,6 @@ public class DataLoader implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * 핵심 비즈니스 로직을 실행하는 메소드.
      * 사용자의 Status, Role 에 대한 초기 데이터를 설정하고, 관리자 계정을 생성합니다.
      * @param args 문자열 배열
      * @throws Exception 예외 처리를 위한 Exception 클래스 적용

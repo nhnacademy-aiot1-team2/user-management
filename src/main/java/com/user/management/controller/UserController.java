@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * 사용자 관리를 위한 REST API 컨트롤러
+ * Author : jjunho50
  */
 @RestController
 @RequestMapping("/api/user")
@@ -106,10 +107,10 @@ public class UserController {
     }
 
     /**
-     * 사용자의 status 정보를 DEACTIVATE로 변경 (사용자 데이터 유지)
+     * 사용자의 status 정보를 DEACTIVATE 로 변경 (사용자 데이터 유지)
      * @param id 사용자 ID
      * @return 상태 코드 204 (내용 없음)
-     * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
+     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
      */
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteUser(@RequestHeader(value = "X-USER-ID", required = false) String id)

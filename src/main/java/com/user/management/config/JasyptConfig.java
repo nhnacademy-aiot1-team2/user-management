@@ -10,21 +10,22 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Jasypt 암호화 설정을 위한 Configuration 클래스입니다.
- * 이름이 'jasyptStringEncryptor'인 StringEncryptor 빈을 등록합니다.
+ * application.properties 에 저장된 DB.username, DB.password, DB.url 을 암호화 합니다.
+ * Author : jjunho50
  */
 @Configuration
 @EnableEncryptableProperties
 public class JasyptConfig {
 
     /**
-     * application.properties에 암호화를 위한 비밀번호 값 (실제 DB 비밀번호 x)
+     * application.properties 에 암호화를 위한 비밀번호 값 (실제 DB 비밀번호 x)
      */
     @Value("${jasypt.encryptor.password}")
     private String password;
 
     /**
-     * StringEncryptor 빈을 생성하고 등록합니다.
-     * Jasypt의 PooledPBEStringEncryptor 클래스를 사용하여 구성하며, 해당 빈은 암호화 및 복호화 작업에 사용됩니다.
+     * BeanName : jasyptStringEncryptor
+     * Jasypt 의 PooledPBEStringEncryptor 클래스를 사용하여 구성하며, 해당 빈은 암호화 및 복호화 작업에 사용됩니다.
      *
      * @return 암호화 및 복호화에 사용될 수 있는 StringEncryptor 객체.
      */

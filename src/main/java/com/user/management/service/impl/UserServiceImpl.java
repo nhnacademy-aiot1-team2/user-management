@@ -22,7 +22,8 @@ import java.util.List;
 
 /**
  * 사용자 관련 서비스를 구현한 클래스입니다.
- * UserService 인터페이스를 구현합니다.
+ * UserService 인터페이스로 구현되었습니다.
+ * Author : jjunho50
  */
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.
      *
      * @param id 조회하려는 사용자의 ID
-     * @return UserDataResponse (id, name, email, birth, roleName, statusName)
+     * @return UserDataResponse (id, name, email, birth, roleName, statusName, password)
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
@@ -94,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 새로운 사용자를 등록하는 메소드입니다.
-     * 등록하려는 사용자 ID가 이미 대응하는 사용자가 있는 경우 예외를 발생시킵니다.
+     * 회원가입 날짜, 마지막 로그인 날짜 자동으로 LocalDateTime.now()로 등록
      *
      * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email, birth)
      * @throws UserAlreadyExistException 사용자가 이미 존재할 때 발생하는 예외
@@ -121,7 +122,6 @@ public class UserServiceImpl implements UserService {
                 .status(statusRepository.getActiveStatus())
                 .createdAt(LocalDateTime.now())
                 .latestLoginAt(LocalDateTime.now())
-                // 회원가입을 해도, 로그인을 하기 전까지는 null로 두려 했는데, 휴면 상태인지 체크할때 null이 문제될까봐 회원가입과 동시에 로그인 날짜가 갱신된다.
                 .build();
 
         userRepository.save(user);
@@ -129,12 +129,10 @@ public class UserServiceImpl implements UserService {
     }
     /**
      * 사용자 정보를 업데이트하는 메소드입니다.
-     * 요청 사용자와 변경하려는 사용자가 같지 않으면 예외를 발생시킵니다.
-     * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
+     * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 UserCreateRequest.userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
      * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
      * @param userId 업데이트하려는 사용자의 ID
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
-     * @throws UserAlreadyExistException 변경하는 userId가 이미 존재하는 userId 일 때 발생하는 예외
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override

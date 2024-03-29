@@ -13,6 +13,7 @@ import java.util.Optional;
 
 /**
  * 사용자(User) 정보를 관리하는 레포지터리 인터페이스입니다.
+ * Author : jjunho50
  */
 public interface UserRepository extends JpaRepository<User, String> {
 
@@ -26,9 +27,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     Role getRoleByUserId(@Param("id") String userId);
 
     /**
-     * 모든 사용자 정보를 조회하여 반환합니다.
+     * 모든 사용자 정보를 조회하여 반환합니다. (어드민 유저만 조회 가능)
      *
-     * @return List<UserDataResponse>
+     * @return List<UserDataResponse> // Only ROLE_ADMIN
      */
     @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name, u.password) FROM User u")
     Page<UserDataResponse> getAllUserData(Pageable pageable);

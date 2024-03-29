@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 
 /**
- * Runtime 예외 처리를 위한 전역 예외 핸들러 입니다.
  * 모든 컨트롤러에서 발생하는 RuntimeException을 처리합니다.
+ * Author : jjunho50
  */
 @ControllerAdvice
 @RestController
