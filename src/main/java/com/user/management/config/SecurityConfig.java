@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
     /**
      * 비밀번호를 암호화하는 PasswordEncoder를 Bean으로 등록합니다.
      * BCrypt 방식의 암호화를 사용합니다.
@@ -44,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/user/**").permitAll()
+                .antMatchers("/api/user/**", "/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v2/api-docs/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

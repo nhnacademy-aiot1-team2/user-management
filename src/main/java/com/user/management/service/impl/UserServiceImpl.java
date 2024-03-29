@@ -90,6 +90,8 @@ public class UserServiceImpl implements UserService {
                 , user.getBirth(), user.getRole().getName(), user.getStatus().getName(), user.getPassword());
     }
 
+
+
     /**
      * 새로운 사용자를 등록하는 메소드입니다.
      * 등록하려는 사용자 ID가 이미 대응하는 사용자가 있는 경우 예외를 발생시킵니다.
