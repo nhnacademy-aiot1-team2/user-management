@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         if(user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
             throw new AdminMustUpdatePasswordException();
 
-        if (passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException();
         }
 
