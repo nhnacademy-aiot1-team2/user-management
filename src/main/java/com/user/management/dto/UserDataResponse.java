@@ -14,4 +14,5 @@ public class UserDataResponse {
     private String birth;
     private String roleName;
     private String statusName;
+    private String password;
 }

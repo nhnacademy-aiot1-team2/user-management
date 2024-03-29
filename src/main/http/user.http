@@ -7,7 +7,7 @@ Accept: application/json
 ###
 
 GET http://localhost:8200/api/user/myPage
-X-USER-ID:jjunho50
+X-USER-ID:test2
 Accept: application/json
 
 ###
@@ -50,7 +50,7 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:8200/api/user/delete
-X-USER-ID:jjunho50
+X-USER-ID:test2
 
 ###
 

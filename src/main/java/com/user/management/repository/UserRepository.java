@@ -30,7 +30,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      *
      * @return List<UserDataResponse>
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name) FROM User u")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name, u.password) FROM User u")
     Page<UserDataResponse> getAllUserData(Pageable pageable);
 
     /**
@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @param userId 사용자 ID
      * @return Optional<UserDataResponse>
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name) FROM User u WHERE u.id = :id")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.birth, u.role.name, u.status.name, u.password) FROM User u WHERE u.id = :id")
     Optional<UserDataResponse> getUserById(@Param("id") String userId);
 
     @Query("SELECT u FROM User u WHERE u.email = :email")
