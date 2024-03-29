@@ -10,11 +10,11 @@ import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
-import com.user.management.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final StatusRepository statusRepository;
@@ -82,10 +82,9 @@ public class UserServiceImpl implements UserService {
         if(user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
             throw new AdminMustUpdatePasswordException();
 
-        if (!user.getPassword().equals(CryptoUtil.sha256(userLoginRequest.getPassword(), user.getSalt()))) {
+        if (passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException();
         }
-
 
         return new UserDataResponse(user.getId(), user.getName(), user.getEmail()
                 , user.getBirth(), user.getRole().getName(), user.getStatus().getName());
@@ -101,7 +100,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void createUser(UserCreateRequest userCreateRequest) {
-        String salt = CryptoUtil.getSalt();
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
 
@@ -116,8 +114,7 @@ public class UserServiceImpl implements UserService {
                 .name(userCreateRequest.getName())
                 .email(userEmail)
                 .birth(userCreateRequest.getBirth())
-                .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
-                .salt(salt)
+                .password(passwordEncoder.encode(userCreateRequest.getPassword()))
                 .role(roleRepository.getUserRole())
                 .status(statusRepository.getActiveStatus())
                 .createdAt(LocalDateTime.now())
@@ -141,7 +138,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
         String userEmail = userCreateRequest.getEmail();
-        String salt = CryptoUtil.getSalt();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
         if(!existedUser.getEmail().equals(userEmail) && emailExists)
@@ -151,8 +147,7 @@ public class UserServiceImpl implements UserService {
                 .name(userCreateRequest.getName())
                 .email(userEmail)
                 .birth(userCreateRequest.getBirth())
-                .password(CryptoUtil.sha256(userCreateRequest.getPassword(), salt))
-                .salt(salt)
+                .password(passwordEncoder.encode(userCreateRequest.getPassword()))
                 .latestLoginAt(LocalDateTime.now())
                 .status(statusRepository.getActiveStatus())
                 .build();

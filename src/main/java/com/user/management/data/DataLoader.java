@@ -6,9 +6,9 @@ import com.user.management.entity.User;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.UserRepository;
-import com.user.management.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -25,6 +25,7 @@ public class DataLoader implements CommandLineRunner {
     private final StatusRepository statusRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 핵심 비즈니스 로직을 실행하는 메소드.
@@ -53,12 +54,10 @@ public class DataLoader implements CommandLineRunner {
 
         if(!userRepository.existsById(ADMIN))
         {
-            String salt = CryptoUtil.getSalt();
 
             userRepository.save(User.builder()
                     .id(ADMIN)
-                    .password(CryptoUtil.sha256(ADMIN, salt))
-                    .salt(salt)
+                    .password(passwordEncoder.encode(ADMIN))
                     .name(ADMIN)
                     .createdAt(LocalDateTime.now()) // 계정 생성 시각
                     .latestLoginAt(null) //
