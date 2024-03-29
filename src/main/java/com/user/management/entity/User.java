@@ -2,6 +2,7 @@ package com.user.management.entity;
 
 import lombok.*;
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +22,7 @@ public class User {
     private String password; // 비밀번호
 
     @Column(name = "user_email")
+    @Email(message = "반드시 이메일 형식으로 입력해야 합니다.")
     private String email; // 이메일
 
     @Column(name = "user_birth")

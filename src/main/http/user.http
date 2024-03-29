@@ -26,24 +26,24 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "test",
-  "name": "test",
-  "password": "test",
-  "email": "admin@gmail.com",
+  "id": "test1",
+  "name": "test1",
+  "password": "test1",
+  "email": "test1@gmail.com",
   "birth": "19991102"
 }
 
 ###
 
 PUT http://localhost:8200/api/user/update
-X-USER-ID:admin
+X-USER-ID:test1
 Content-Type: application/json
 
 {
-  "id": "admin",
-  "name": "admin",
-  "password": "1234",
-  "email": "admin@gmail.com",
+  "id": "test1",
+  "name": "test1",
+  "password": "test1",
+  "email": "asdfasdf",
   "birth": "19991102"
 }
 

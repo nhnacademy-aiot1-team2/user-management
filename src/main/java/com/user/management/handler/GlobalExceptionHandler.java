@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
  * 모든 컨트롤러에서 발생하는 RuntimeException을 처리합니다.
  */
 @ControllerAdvice
+@RestController
 public class GlobalExceptionHandler {
 
     /**
@@ -38,4 +40,6 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorDetails.toString(4), HttpStatus.BAD_REQUEST);
     }
+
+
 }

@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsById(userId))
             throw new UserAlreadyExistException(userId);
 
-        if(userRepository.getByEmail(userEmail).orElse(null) == null)
+        if(userRepository.getByEmail(userEmail).orElse(null) != null)
             throw new AlreadyExistEmailException(userEmail);
 
         User user = User.builder()
@@ -140,17 +140,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
-        String changedId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
-
-        if(userRepository.existsById(changedId) && !userId.equals(changedId))
-            throw new UserAlreadyExistException(changedId);
-
-        if(userRepository.getByEmail(userEmail).orElse(null) == null)
-            throw new AlreadyExistEmailException(userEmail);
-
         String salt = CryptoUtil.getSalt();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
+        if(!existedUser.getEmail().equals(userEmail) && emailExists)
+            throw new AlreadyExistEmailException(userEmail);
+
         User user = existedUser.toBuilder()
                 .name(userCreateRequest.getName())
                 .email(userEmail)
