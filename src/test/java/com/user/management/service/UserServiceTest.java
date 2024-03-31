@@ -6,10 +6,7 @@ import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
-import com.user.management.exception.AdminMustUpdatePasswordException;
-import com.user.management.exception.InvalidPasswordException;
-import com.user.management.exception.OnlyAdminCanAccessUserDataException;
-import com.user.management.exception.UserNotFoundException;
+import com.user.management.exception.*;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -211,9 +208,19 @@ class UserServiceTest {
         Assertions.assertEquals("testId", userArgumentCaptor.getValue().getId());
     }
 
+    @Test
+    @Order(11)
+    @DisplayName("유저 등록 : 유저가 존재하지 않을 때")
+    void createUser_UserAlreadyExistException(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest();
+        userCreateRequest.setId("testId");
+        given(userRepository.existsById(anyString())).willReturn(true);
+
+        Assertions.assertThrows(UserAlreadyExistException.class, () -> userService.createUser(userCreateRequest));
+    }
 
     @Test
-    @Order(5)
+    @Order(12)
     void updateUser() {
         UserCreateRequest userCreateRequest = new UserCreateRequest("testId",
                 "changeName",
@@ -249,7 +256,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(13)
     void deleteUser() {
         User user = User.builder().id("testId").build();
 
