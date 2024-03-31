@@ -69,7 +69,8 @@ class UserControllerTest {
                 "testEmail",
                 "testBirth",
                 "testRole",
-                "teststauts"
+                "teststauts",
+                "testPassword"
         );
         userDataResponse2 = new UserDataResponse(
                 "userDataResponse2Id",
@@ -77,7 +78,8 @@ class UserControllerTest {
                 "testEmail",
                 "testBirth",
                 "testRole",
-                "teststauts"
+                "teststauts",
+                "testPassword"
         );
     }
 

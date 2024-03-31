@@ -136,6 +136,7 @@ class UserServiceTest {
                 "",
                 "",
                 "",
+                "",
                 "");
 
         given(userRepository.findById(userLoginRequest.getId())).willReturn(Optional.ofNullable(user));
