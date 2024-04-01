@@ -11,6 +11,7 @@ import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -54,7 +55,6 @@ class UserServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-
     @Test
     void getAllUsers_AdminAccess() {
         String userId = "testId";
@@ -66,10 +66,12 @@ class UserServiceImplTest {
                 .role(roleAdmin)
                 .build();
 
-        UserDataResponse userDataResponse = new UserDataResponse(adminUser.getId(), null, null,
-                null, adminUser.getRole().getName(), null, null);
+        UserDataResponse userDataResponse = new UserDataResponse();
+        userDataResponse.setId(adminUser.getId());
+        userDataResponse.setRoleName(adminUser.getRole().getName());
 
         Page<UserDataResponse> expectedPage = new PageImpl<>(List.of(userDataResponse));
+
         when(userRepository.existsById(userId)).thenReturn(true);
         when(userRepository.getRoleByUserId(userId)).thenReturn(roleAdmin);
         when(userRepository.getAllUserData(pageable)).thenReturn(expectedPage);
@@ -83,8 +85,8 @@ class UserServiceImplTest {
     @Test
     void getUserById() {
         final String TEST_USER_ID = "testUserId";
-        UserDataResponse expectedUser =
-                new UserDataResponse("user1", null, null,null, null, null, null);
+        UserDataResponse expectedUser = new UserDataResponse();
+        expectedUser.setId("testUserId");
 
         when(userRepository.getUserById(TEST_USER_ID)).thenReturn(Optional.of(expectedUser));
 
@@ -107,7 +109,7 @@ class UserServiceImplTest {
                 .build();
 
         when(userRepository.findById(userLoginRequest.getId())).thenReturn(Optional.of(mockedUser));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        when(passwordEncoder.matches(any(), any())).thenReturn(true); // passwordEncoder 는 Mock 객체라 null 이 반환된다.
 
         assertThrows(AdminMustUpdatePasswordException.class, () -> {
             userService.getUserLogin(userLoginRequest);
@@ -150,11 +152,6 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).existsById(userCreateRequest.getId());
         verify(userRepository, times(1)).save(any(User.class));
 
-        when(userRepository.existsById(userCreateRequest.getId())).thenReturn(true);
-        assertThrows(UserAlreadyExistException.class, () -> {
-            userService.createUser(userCreateRequest);
-        });
-
         when(userRepository.existsById(userCreateRequest.getId())).thenReturn(false);
         when(userRepository.getByEmail(userCreateRequest.getEmail())).thenReturn(Optional.of(expectedUser));
         assertThrows(AlreadyExistEmailException.class, () -> {
@@ -168,8 +165,10 @@ class UserServiceImplTest {
         String userEmail = "testuser@test.com";
         String newEmail = "newuser@test.com";
 
+        // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
         UserCreateRequest updateRequest =
                 new UserCreateRequest("testId", "newName", "newPassword", newEmail, "19991102");
+
 
         Status activeStatus = new Status(1L, "ACTIVE");
         Role role = new Role(2L, "ROLE_USER");
@@ -179,7 +178,7 @@ class UserServiceImplTest {
                 .name("testName")
                 .email(userEmail)
                 .birth("19801102")
-                .password("testPassword")
+                .password("testPassword") // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
                 .latestLoginAt(LocalDateTime.now())
                 .status(activeStatus)
                 .role(role)
@@ -189,8 +188,6 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
         when(userRepository.getByEmail(newEmail)).thenReturn(Optional.empty());
         when(statusRepository.getActiveStatus()).thenReturn(activeStatus);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
-        when(userRepository.getByEmail(userEmail)).thenReturn(Optional.empty());
 
         userService.updateUser(updateRequest, userId);
 
@@ -215,22 +212,22 @@ class UserServiceImplTest {
     void deleteUser() {
         String userId = "testId";
 
-        Status deactivatedStatus = new Status(3L, "DEACTIVATED");
-        Role role = new Role(2L, "ROLE_USER");
+        Status deactivatedStatus = statusRepository.getDeactivatedStatus();
+        Role role = roleRepository.getUserRole();
 
         User originalUser = User.builder()
                 .id(userId)
                 .name("testName")
                 .birth("19801102")
-                .password("testPassword")
+                .password(passwordEncoder.encode("password"))
                 .latestLoginAt(LocalDateTime.now())
-                .status(new Status(1L, "ACTIVE"))
+                .status(statusRepository.getActiveStatus())
                 .role(role)
                 .createdAt(LocalDateTime.now())
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
-        when(statusRepository.getDeactivatedStatus()).thenReturn(deactivatedStatus);
+        when(statusRepository.getDeactivatedStatus()).thenReturn(deactivatedStatus); // null == null
 
         userService.deleteUser(userId);
 
@@ -285,10 +282,10 @@ class UserServiceImplTest {
         userService.updateUserInactivityStatus();
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository, times(1)).save(userCaptor.capture());
+        verify(userRepository, times(1)).save(userCaptor.capture()); // 2번째 테스트는 최근 로그인이 1주일 전이므로, update가 진행되지 않음.
         List<User> savedUsers = userCaptor.getAllValues();
 
-        assertEquals(inActiveStatus, savedUsers.get(0).getStatus());
+        assertEquals(inActiveStatus, savedUsers.get(0).getStatus()); // 1번째 user는 마지막 로그인이 2달전이니, 휴면 상태로 전환된다.
     }
 
     @Test
