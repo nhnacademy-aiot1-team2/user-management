@@ -160,15 +160,14 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUser() {
+    void updateUser_Basic() {
         String userId = "testId";
         String userEmail = "testuser@test.com";
         String newEmail = "newuser@test.com";
 
         // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
         UserCreateRequest updateRequest =
-                new UserCreateRequest("testId", "newName", "newPassword", newEmail, "19991102");
-
+                new UserCreateRequest(userId, "newName", "newPassword", newEmail, "19991102");
 
         Status activeStatus = new Status(1L, "ACTIVE");
         Role role = new Role(2L, "ROLE_USER");
@@ -178,7 +177,7 @@ class UserServiceImplTest {
                 .name("testName")
                 .email(userEmail)
                 .birth("19801102")
-                .password("testPassword") // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
+                .password(passwordEncoder.encode("testPassword")) // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
                 .latestLoginAt(LocalDateTime.now())
                 .status(activeStatus)
                 .role(role)
@@ -211,19 +210,11 @@ class UserServiceImplTest {
     @Test
     void deleteUser() {
         String userId = "testId";
-
         Status deactivatedStatus = statusRepository.getDeactivatedStatus();
-        Role role = roleRepository.getUserRole();
 
         User originalUser = User.builder()
-                .id(userId)
-                .name("testName")
-                .birth("19801102")
-                .password(passwordEncoder.encode("password"))
-                .latestLoginAt(LocalDateTime.now())
+                .id("testId")
                 .status(statusRepository.getActiveStatus())
-                .role(role)
-                .createdAt(LocalDateTime.now())
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
@@ -243,40 +234,22 @@ class UserServiceImplTest {
 
     @Test
     void updateUserInactivityStatus() {
-        String userIdOne = "testIdOne";
-        Status activeStatusOne = new Status(1L, "ACTIVE");
-        Role roleOne = new Role(2L, "ROLE_USER");
-        LocalDateTime loginTimeOne = LocalDateTime.now().minusMonths(2);
+        Status inActiveStatus = new Status(2L, "INACTIVE");
+        Status activeStatus = new Status(1L, "ACTIVE");
 
         User activeUserOne = User.builder()
-                .id(userIdOne)
-                .name("testNameOne")
-                .birth("19851102")
-                .password("testPassword")
-                .latestLoginAt(loginTimeOne)
-                .status(activeStatusOne)
-                .role(roleOne)
-                .createdAt(LocalDateTime.now())
+                .id("testIdOne")
+                .latestLoginAt(LocalDateTime.now().minusMonths(2))
+                .status(activeStatus)
                 .build();
 
-        String userIdTwo = "testIdTwo";
-        Status activeStatusTwo = new Status(1L, "ACTIVE");
-        LocalDateTime loginTimeTwo = LocalDateTime.now().minusWeeks(1);
-
         User activeUserTwo = User.builder()
-                .id(userIdTwo)
-                .name("testNameTwo")
-                .birth("19851102")
-                .password("testPassword")
-                .latestLoginAt(loginTimeTwo)
-                .status(activeStatusTwo)
-                .role(roleOne)
-                .createdAt(LocalDateTime.now())
+                .id("testIdTwo")
+                .latestLoginAt(LocalDateTime.now().minusWeeks(1))
+                .status(new Status(1L, "ACTIVE"))
                 .build();
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(activeUserOne, activeUserTwo));
-
-        Status inActiveStatus = new Status(2L, "INACTIVE");
         when(statusRepository.getInActiveStatus()).thenReturn(inActiveStatus);
 
         userService.updateUserInactivityStatus();
@@ -290,20 +263,10 @@ class UserServiceImplTest {
 
     @Test
     void checkAndUpdateInactivity() {
-        String userId = "testId";
-        Status activeStatus = new Status(1L, "ACTIVE");
-        Role role = new Role(2L, "ROLE_USER");
-        LocalDateTime loginTime = LocalDateTime.now().minusMonths(2);
-
         User activeUser = User.builder()
-                .id(userId)
-                .name("testName")
-                .birth("19851102")
-                .password("testPassword")
-                .latestLoginAt(loginTime)
-                .status(activeStatus)
-                .role(role)
-                .createdAt(LocalDateTime.now())
+                .id("testId")
+                .latestLoginAt(LocalDateTime.now().minusMonths(2))
+                .status( new Status(1L, "ACTIVE"))
                 .build();
 
         Status inActiveStatus = new Status(2L, "INACTIVE");
