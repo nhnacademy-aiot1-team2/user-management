@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.
      *
      * @param id 조회하려는 사용자의 ID
-     * @return UserDataResponse (id, name, email, birth, roleName, statusName, password)
+     * @return UserDataResponse (id, name, email, roleName, statusName, password)
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         }
 
         return new UserDataResponse(user.getId(), user.getName(), user.getEmail()
-                , user.getBirth(), user.getRole().getName(), user.getStatus().getName(), user.getPassword());
+                , user.getRole().getName(), user.getStatus().getName(), user.getPassword());
     }
 
 
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
      * 새로운 사용자를 등록하는 메소드입니다.
      * 회원가입 날짜, 마지막 로그인 날짜 자동으로 LocalDateTime.now()로 등록
      *
-     * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email, birth)
+     * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email)
      * @throws UserAlreadyExistException  사용자가 이미 존재할 때 발생하는 예외
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
@@ -114,7 +114,6 @@ public class UserServiceImpl implements UserService {
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
                 .email(userEmail)
-                .birth(userCreateRequest.getBirth())
                 .password(passwordEncoder.encode(userCreateRequest.getPassword()))
                 .role(roleRepository.getUserRole())
                 .status(statusRepository.getActiveStatus())
@@ -130,7 +129,7 @@ public class UserServiceImpl implements UserService {
      * 사용자 정보를 업데이트하는 메소드입니다.
      * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 UserCreateRequest.userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
      *
-     * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
+     * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email)
      * @param userId            업데이트하려는 사용자의 ID
      * @throws UserNotFoundException      사용자를 찾을 수 없을 때 발생하는 예외
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
@@ -146,7 +145,6 @@ public class UserServiceImpl implements UserService {
         User user = existedUser.toBuilder()
                 .name(userCreateRequest.getName())
                 .email(userEmail)
-                .birth(userCreateRequest.getBirth())
                 .password(passwordEncoder.encode(userCreateRequest.getPassword()))
                 .latestLoginAt(LocalDateTime.now())
                 .status(statusRepository.getActiveStatus())

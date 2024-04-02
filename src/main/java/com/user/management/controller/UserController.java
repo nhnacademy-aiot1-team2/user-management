@@ -68,7 +68,7 @@ public class UserController {
     /**
      * 새로운 사용자를 등록하는 메소드
      *
-     * @param userCreateRequest 사용자 생성 요청에 필요한 데이터 (id, name, password, email, birth)
+     * @param userCreateRequest 사용자 생성 요청에 필요한 데이터 (id, name, password, email)
      * @return 상태 코드 201 (생성됨)
      */
     @PostMapping("/register")
@@ -91,7 +91,7 @@ public class UserController {
     /**
      * 사용자 정보를 업데이트하는 메소드
      *
-     * @param userCreateRequest 사용자 갱신 요청에 필요한 데이터 (id, name, password, email, birth)
+     * @param userCreateRequest 사용자 갱신 요청에 필요한 데이터 (id, name, password, email)
      * @param id                사용자 ID
      * @return 상태 코드 204 (내용 없음)
      * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생

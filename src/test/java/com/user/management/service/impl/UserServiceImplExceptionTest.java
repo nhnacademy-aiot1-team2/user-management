@@ -23,7 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-public class UserServiceImplExceptionTest {
+class UserServiceImplExceptionTest {
     @Mock
     private UserRepository userRepository;
 
@@ -98,7 +98,7 @@ public class UserServiceImplExceptionTest {
     @Test
     void createUser_UserAlreadyExistException() {
         UserCreateRequest userCreateRequest =
-                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
+                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com");
 
         userService.createUser(userCreateRequest);
 
@@ -111,13 +111,12 @@ public class UserServiceImplExceptionTest {
     @Test
     void createUser_AlreadyExistEmailException() {
         UserCreateRequest userCreateRequest =
-                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
+                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com");
 
         User expectedUser = User.builder()
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
-                .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
                 .latestLoginAt(LocalDateTime.now())
                 .build();

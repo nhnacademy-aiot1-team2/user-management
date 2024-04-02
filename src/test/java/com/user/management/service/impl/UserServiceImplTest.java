@@ -131,7 +131,7 @@ class UserServiceImplTest {
     @Test
     void createUser() {
         UserCreateRequest userCreateRequest =
-                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
+                new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com");
 
         Role testRole = new Role(1L, "ROLE_USER");
         Status testStatus = new Status(1L, "ACTIVE");
@@ -140,7 +140,6 @@ class UserServiceImplTest {
                 .id(userCreateRequest.getId())
                 .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
-                .birth(userCreateRequest.getBirth())
                 .password(userCreateRequest.getPassword())
                 .role(testRole)
                 .status(testStatus)
@@ -168,7 +167,7 @@ class UserServiceImplTest {
 
         // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
         UserCreateRequest updateRequest =
-                new UserCreateRequest(userId, "newName", "newPassword", newEmail, "19991102");
+                new UserCreateRequest(userId, "newName", "newPassword", newEmail);
 
         Status activeStatus = new Status(1L, "ACTIVE");
         Role role = new Role(2L, "ROLE_USER");
@@ -177,7 +176,6 @@ class UserServiceImplTest {
                 .id(userId)
                 .name("testName")
                 .email(userEmail)
-                .birth("19801102")
                 .password(passwordEncoder.encode("testPassword")) // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
                 .latestLoginAt(LocalDateTime.now())
                 .status(activeStatus)
@@ -198,7 +196,6 @@ class UserServiceImplTest {
 
         assertEquals(updateRequest.getName(), savedUser.getName());
         assertEquals(newEmail, savedUser.getEmail());
-        assertEquals(updateRequest.getBirth(), savedUser.getBirth());
         assertEquals(passwordEncoder.encode(updateRequest.getPassword()), savedUser.getPassword());
 
         when(userRepository.getByEmail(newEmail)).thenReturn(Optional.of(originalUser));

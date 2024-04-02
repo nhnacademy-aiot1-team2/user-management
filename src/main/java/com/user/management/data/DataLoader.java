@@ -60,7 +60,6 @@ public class DataLoader implements CommandLineRunner {
                     .name(ADMIN)
                     .createdAt(LocalDateTime.now()) // 계정 생성 시각
                     .latestLoginAt(null) //
-                    .birth("12341122") // 생년월일
                     .email("admin@example.com") // 이메일
                     .status(statusRepository.getActiveStatus()) // 상태는 'ACTIVE'(활성)
                     .role(roleRepository.getAdminRole()) // 역할은 'ROLE_ADMIN'(관리자)

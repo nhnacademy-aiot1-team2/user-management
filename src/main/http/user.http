@@ -16,8 +16,8 @@ POST http://localhost:8200/api/user/login
 Content-Type: application/json
 
 {
-  "id": "test2",
-  "password": "test2"
+  "id": "admin",
+  "password": "1234"
 }
 
 ###
@@ -26,11 +26,10 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "test4",
-  "name": "test4",
-  "password": "test4",
-  "email": "test4@gmail.com",
-  "birth": "19991102"
+  "id": "asdf",
+  "name": "asdf",
+  "password": "asdf",
+  "email": "asdf@gmail.com"
 }
 
 ###
@@ -43,8 +42,7 @@ Content-Type: application/json
   "id": "admin",
   "name": "admin",
   "password": "1234",
-  "email": "admin@gmail.com",
-  "birth": "19991102"
+  "email": "admin@gmail.com"
 }
 
 ###
