@@ -13,6 +13,7 @@ import com.user.management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -126,10 +127,21 @@ public class UserServiceImplExceptionTest {
         UserCreateRequest userCreateRequest =
                 new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
 
+        User expectedUser = User.builder()
+                .id(userCreateRequest.getId())
+                .name(userCreateRequest.getName())
+                .email(userCreateRequest.getEmail())
+                .birth(userCreateRequest.getBirth())
+                .password(userCreateRequest.getPassword())
+                .latestLoginAt(LocalDateTime.now())
+                .build();
+
         when(userRepository.existsById(userCreateRequest.getId())).thenReturn(false);
         when(userRepository.getByEmail(userCreateRequest.getEmail())).thenReturn(Optional.of(expectedUser));
         assertThrows(AlreadyExistEmailException.class, () -> {
             userService.createUser(userCreateRequest);
         });
     }
+
+
 }
