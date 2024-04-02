@@ -6,7 +6,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- *
  * <p>{@link EnableScheduling} 어노테이션은 스프링의 스케쥴러를 활성화시킵니다.
  * (마지막 로그인 시간이 1달이 지난 유저는 자동으로 휴면 상태로 전환됩니다.)
  *

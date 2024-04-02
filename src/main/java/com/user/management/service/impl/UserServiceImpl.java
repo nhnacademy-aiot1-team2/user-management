@@ -38,16 +38,15 @@ public class UserServiceImpl implements UserService {
      *
      * @param id       검증할 사용자 ID, 없으면 예외 발생
      * @param pageable 페이징 정보
-     * @return         사용자 정보를 포함하는 Page<UserDataResponse> 객체
-     * @throws UserNotFoundException 이 메서드는 사용자 ID가 존재하지 않을 경우 이 예외를 발생시킵니다.
+     * @return 사용자 정보를 포함하는 Page<UserDataResponse> 객체
+     * @throws UserNotFoundException               이 메서드는 사용자 ID가 존재하지 않을 경우 이 예외를 발생시킵니다.
      * @throws OnlyAdminCanAccessUserDataException 이 메서드는 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
-    public Page<UserDataResponse> getAllUsers(String id, Pageable pageable)
-    {
-        if(!userRepository.existsById(id)) throw new UserNotFoundException(id);
+    public Page<UserDataResponse> getAllUsers(String id, Pageable pageable) {
+        if (!userRepository.existsById(id)) throw new UserNotFoundException(id);
 
-        if(userRepository.getRoleByUserId(id).getId() != 1L)
+        if (userRepository.getRoleByUserId(id).getId() != 1L)
             throw new OnlyAdminCanAccessUserDataException();
 
         return userRepository.getAllUserData(pageable);
@@ -72,15 +71,15 @@ public class UserServiceImpl implements UserService {
      *
      * @param userLoginRequest 사용자 로그인 요청 정보 (id, password)
      * @return 로그인된 User 정보
-     * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
-     * @throws InvalidPasswordException 비밀번호가 일치하지 않을 때 발생하는 예외
+     * @throws UserNotFoundException            사용자를 찾을 수 없을 때 발생하는 예외
+     * @throws InvalidPasswordException         비밀번호가 일치하지 않을 때 발생하는 예외
      * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
     public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
-        if(user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
+        if (user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
             throw new AdminMustUpdatePasswordException();
 
         if (!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
@@ -92,13 +91,12 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     /**
      * 새로운 사용자를 등록하는 메소드입니다.
      * 회원가입 날짜, 마지막 로그인 날짜 자동으로 LocalDateTime.now()로 등록
      *
      * @param userCreateRequest 사용자 생성 요청 정보 (id, name, password, email, birth)
-     * @throws UserAlreadyExistException 사용자가 이미 존재할 때 발생하는 예외
+     * @throws UserAlreadyExistException  사용자가 이미 존재할 때 발생하는 예외
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
@@ -106,10 +104,10 @@ public class UserServiceImpl implements UserService {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
 
-        if(userRepository.existsById(userId))
+        if (userRepository.existsById(userId))
             throw new UserAlreadyExistException(userId);
 
-        if(userRepository.getByEmail(userEmail).orElse(null) != null)
+        if (userRepository.getByEmail(userEmail).orElse(null) != null)
             throw new AlreadyExistEmailException(userEmail);
 
         User user = User.builder()
@@ -127,12 +125,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
     }
+
     /**
      * 사용자 정보를 업데이트하는 메소드입니다.
      * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 UserCreateRequest.userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
+     *
      * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email, birth)
-     * @param userId 업데이트하려는 사용자의 ID
-     * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
+     * @param userId            업데이트하려는 사용자의 ID
+     * @throws UserNotFoundException      사용자를 찾을 수 없을 때 발생하는 예외
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
         String userEmail = userCreateRequest.getEmail();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
-        if(!existedUser.getEmail().equals(userEmail) && emailExists)
+        if (!existedUser.getEmail().equals(userEmail) && emailExists)
             throw new AlreadyExistEmailException(userEmail);
 
         User user = existedUser.toBuilder()
@@ -196,10 +196,10 @@ public class UserServiceImpl implements UserService {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
         // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
-        if(existedUser.getLatestLoginAt() == null)
+        if (existedUser.getLatestLoginAt() == null)
             return;
 
-        if(existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
+        if (existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
 
             User user = existedUser.toBuilder()

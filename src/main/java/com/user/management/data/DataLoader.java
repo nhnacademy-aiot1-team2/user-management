@@ -29,6 +29,7 @@ public class DataLoader implements CommandLineRunner {
 
     /**
      * 사용자의 Status, Role 에 대한 초기 데이터를 설정하고, 관리자 계정을 생성합니다.
+     *
      * @param args 문자열 배열
      * @throws Exception 예외 처리를 위한 Exception 클래스 적용
      */
@@ -51,8 +52,7 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(2L, "ROLE_USER")); // 사용자
         }
 
-        if(!userRepository.existsById(ADMIN))
-        {
+        if (!userRepository.existsById(ADMIN)) {
 
             userRepository.save(User.builder()
                     .id(ADMIN)

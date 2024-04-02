@@ -25,8 +25,7 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
      *
      * @return 휴면 회원 상태, 예외 발생 가능성 x
      */
-    default Status getInActiveStatus()
-    {
+    default Status getInActiveStatus() {
         return findById(2L).orElse(null);
     }
 
@@ -36,8 +35,7 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
      *
      * @return 탈퇴 회원 상태, 예외 발생 가능성 x
      */
-    default Status getDeactivatedStatus()
-    {
+    default Status getDeactivatedStatus() {
         return findById(3L).orElse(null);
     }
 }
