@@ -1,36 +1,27 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.UserCreateRequest;
-import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Role;
-import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class UserServiceImplExceptionTest {
     @Mock
@@ -48,6 +39,7 @@ public class UserServiceImplExceptionTest {
 
     @InjectMocks
     private UserServiceImpl userService;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -55,8 +47,7 @@ public class UserServiceImplExceptionTest {
 
 
     @Test
-    void getAllUsers_UserNotFoundTest()
-    {
+    void getAllUsers_UserNotFoundTest() {
         String userId = "invalidId";
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -78,9 +69,7 @@ public class UserServiceImplExceptionTest {
     }
 
     @Test
-    void getUserById_NotFoundException()
-
-    {
+    void getUserById_NotFoundException() {
         String notExistedUserId = "notExisted";
 
         when(userRepository.existsById(notExistedUserId)).thenReturn(false);
@@ -88,8 +77,7 @@ public class UserServiceImplExceptionTest {
     }
 
     @Test
-    void getUserLogin_InvalidPasswordException()
-    {
+    void getUserLogin_InvalidPasswordException() {
         String userId = "userId";
         String INVALID_PASSWORD = "222";
         String VALID_PASSWORD = "111";
@@ -108,8 +96,7 @@ public class UserServiceImplExceptionTest {
     }
 
     @Test
-    void createUser_UserAlreadyExistException()
-    {
+    void createUser_UserAlreadyExistException() {
         UserCreateRequest userCreateRequest =
                 new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
 
@@ -122,8 +109,7 @@ public class UserServiceImplExceptionTest {
     }
 
     @Test
-    void createUser_AlreadyExistEmailException()
-    {
+    void createUser_AlreadyExistEmailException() {
         UserCreateRequest userCreateRequest =
                 new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com", "19991102");
 

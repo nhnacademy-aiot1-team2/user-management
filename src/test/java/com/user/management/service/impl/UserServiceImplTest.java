@@ -6,12 +6,13 @@ import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
-import com.user.management.exception.*;
+import com.user.management.exception.AdminMustUpdatePasswordException;
+import com.user.management.exception.AlreadyExistEmailException;
+import com.user.management.exception.UserNotFoundException;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -22,8 +23,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -31,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
@@ -266,7 +267,7 @@ class UserServiceImplTest {
         User activeUser = User.builder()
                 .id("testId")
                 .latestLoginAt(LocalDateTime.now().minusMonths(2))
-                .status( new Status(1L, "ACTIVE"))
+                .status(new Status(1L, "ACTIVE"))
                 .build();
 
         Status inActiveStatus = new Status(2L, "INACTIVE");
