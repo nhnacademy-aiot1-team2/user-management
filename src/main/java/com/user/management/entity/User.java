@@ -1,5 +1,7 @@
-package com.user.management.entity;
+package com.user.management.entity.user;
 
+import com.user.management.entity.Role;
+import com.user.management.entity.Status;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(toBuilder = true)
-@Table(name = "Users")
+@Table(name = "users")
 public class User {
     @Id
     @Column(name = "user_id")
@@ -39,9 +41,11 @@ public class User {
 
     @Column(name = "latest_login_at")
     private LocalDateTime latestLoginAt; // 마지막 접속일
+    private String provider; //공급자 (google, facebook ...)
+    private String providerId; //공급 아이디
 
     @Builder
-    public User(String id, String name, String password, String email, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
+    public User(String id, String name, String password, String email, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt, String provider, String providerId) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -50,5 +54,7 @@ public class User {
         this.status = status;
         this.createdAt = createdAt;
         this.latestLoginAt = latestLoginAt;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 }
