@@ -1,8 +1,9 @@
-package com.user.management.entity.user;
+package com.user.management.entity;
 
-import com.user.management.entity.Role;
-import com.user.management.entity.Status;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

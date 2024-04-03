@@ -1,12 +1,11 @@
 package com.user.management.config;
 
+import com.user.management.service.impl.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -17,15 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    /**
-     * BCrypt 암호화를 사용하는 PasswordEncoder Bean을 제공합니다.
-     *
-     * @return BCryptPasswordEncoder
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final OAuth2UserService oAuth2UserService;
 
     /**
      * HttpSecurity 설정을 이용해 SecurityFilterChain Bean을 제공합니다.
@@ -37,13 +28,16 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
+                .httpBasic().disable()
                 .csrf().disable()
+                .cors().and()
                 .authorizeRequests()
-                .antMatchers("/api/user/**", "/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v2/api-docs/**", "/webjars/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic();
-        return http.build();
+                .anyRequest().permitAll() //나머지 uri는 모든 접근 허용
+                .and().oauth2Login()
+                .loginPage("/loginForm") //로그인이 필요한데 로그인을 하지 않았다면 이동할 uri 설정
+                .defaultSuccessUrl("/", true) //OAuth 구글 로그인이 성공하면 이동할 uri 설정
+                .userInfoEndpoint()//로그인 완료 후 회원 정보 받기
+                .userService(oAuth2UserService).and().and().build(); //
     }
 }
