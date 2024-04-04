@@ -48,6 +48,10 @@ public class DataLoader implements CommandLineRunner {
             statusRepository.save(new Status(3L, "DEACTIVATE")); // 탈퇴 상태
         }
 
+        if (!statusRepository.existsById(4L)) {
+            statusRepository.save(new Status(4L, "PENDING")); // 승인 대기 상태
+        }
+
         if (!roleRepository.existsById(1L)) {
             roleRepository.save(new Role(1L, "ROLE_ADMIN")); // 관리자
         }

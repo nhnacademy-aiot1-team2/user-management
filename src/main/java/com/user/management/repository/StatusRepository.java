@@ -38,4 +38,15 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
     default Status getDeactivatedStatus() {
         return findById(3L).orElse(null);
     }
+
+    /**
+     * 승인대기 상태를 반환하는 메소드 입니다.
+     * 승인대기 회원 (Long) ID = 4
+     *
+     * @return 승인대기 회원 상태, 예외 발생 가능성 x
+     */
+    default Status getPendingStatus()
+    {
+        return findById(4L).orElse(null);
+    }
 }

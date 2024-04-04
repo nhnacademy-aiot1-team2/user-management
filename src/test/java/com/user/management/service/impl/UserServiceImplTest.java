@@ -218,7 +218,7 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
         when(statusRepository.getDeactivatedStatus()).thenReturn(deactivatedStatus); // null == null
 
-        userService.deleteUser(userId);
+        userService.deactivateUser(userId);
 
         verify(userRepository, times(1)).findById(userId);
 
@@ -227,7 +227,7 @@ class UserServiceImplTest {
         verify(userRepository).save(userArgumentCaptor.capture());
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.deactivateUser(userId));
     }
 
     @Test

@@ -1,11 +1,4 @@
 
-// 모든 UserList 조회 가능
-GET http://localhost:8200/api/user?page=0&size=3
-X-USER-ID:admin
-Accept: application/json
-
-###
-
 GET http://localhost:8200/api/user/myPage
 X-USER-ID:test2
 Accept: application/json
@@ -26,10 +19,10 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "zxcv",
-  "name": "zxcv",
-  "password": "zxcv",
-  "email": "zxcv@gmail.com"
+  "id": "zxcv1",
+  "name": "zxcv1",
+  "password": "zxcv1",
+  "email": "zxcv1@gmail.com"
 }
 
 ###

@@ -1,0 +1,36 @@
+// 모든 UserList 조회 가능
+GET http://localhost:8200/api/admin/userList
+X-USER-ID:admin
+Accept: application/json
+
+###
+
+GET http://localhost:8200/api/admin/userList/sort/4
+Accept: application/json
+
+###
+
+POST http://localhost:8200/api/admin/promotion
+Content-Type: application/json
+
+{
+  "id": "zxcv1"
+}
+
+###
+
+POST http://localhost:8200/api/admin/permit
+Content-Type: application/json
+
+{
+  "id": "zxcv1"
+}
+
+###
+
+DELETE http://localhost:8200/api/admin/delete
+Content-Type: application/json
+
+{
+  "deleteUserId": "zxcv1"
+}

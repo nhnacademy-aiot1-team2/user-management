@@ -1,5 +1,6 @@
 package com.user.management.service.impl;
 
+import com.user.management.dto.PermitUserRequest;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
@@ -48,10 +49,15 @@ public class UserServiceImpl implements UserService {
     public Page<UserDataResponse> getAllUsers(String id, Pageable pageable) {
         if (!userRepository.existsById(id)) throw new UserNotFoundException(id);
 
-        if (userRepository.getRoleByUserId(id).getId() != 1L)
-            throw new OnlyAdminCanAccessUserDataException();
+        if (userRepository.getRoleByUserId(id).getId() != 1L) throw new OnlyAdminCanAccessUserDataException();
 
         return userRepository.getAllUserData(pageable);
+    }
+
+    @Override
+    public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
+        if(!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
+        return userRepository.getUsersFilteredByStatusId(pageable, statusId);
     }
 
 
@@ -88,8 +94,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidPasswordException();
         }
 
-        return new UserDataResponse(user.getId(), user.getName(), user.getEmail()
-                , user.getRole().getName(), user.getStatus().getName(), user.getPassword());
+        return new UserDataResponse(user.getId(), user.getName(), user.getEmail(), user.getRole().getName(), user.getStatus().getName(), user.getPassword());
     }
 
 
@@ -106,26 +111,28 @@ public class UserServiceImpl implements UserService {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
 
-        if (userRepository.existsById(userId))
-            throw new UserAlreadyExistException(userId);
+        if (userRepository.existsById(userId)) throw new UserAlreadyExistException(userId);
+        if (userRepository.getByEmail(userEmail).orElse(null) != null) throw new AlreadyExistEmailException(userEmail);
 
-        if (userRepository.getByEmail(userEmail).orElse(null) != null)
-            throw new AlreadyExistEmailException(userEmail);
-
-        User user = User.builder()
-                .id(userCreateRequest.getId())
-                .name(userCreateRequest.getName())
-                .email(userEmail)
-                .password(passwordEncoder.encode(userCreateRequest.getPassword()))
-                .role(roleRepository.getUserRole())
-                .status(statusRepository.getActiveStatus())
-                .createdAt(LocalDateTime.now())
-                .latestLoginAt(LocalDateTime.now())
-                .provider(providerRepository.getDefaultProvider())
-                .build();
-
+        User user = User.builder().id(userCreateRequest.getId()).name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).role(roleRepository.getUserRole()).status(statusRepository.getPendingStatus()).createdAt(LocalDateTime.now()).latestLoginAt(LocalDateTime.now()).provider(providerRepository.getDefaultProvider()).build();
         userRepository.save(user);
 
+    }
+
+    @Override
+    public void permitUser(PermitUserRequest permitUserRequest) {
+        String userId = permitUserRequest.getId();
+        User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        userRepository.save(pendingUser.toBuilder().status(statusRepository.getActiveStatus()).latestLoginAt(LocalDateTime.now()).build());
+    }
+
+    @Override
+    public void promoteUser(PermitUserRequest permitUserRequest) {
+        String userId = permitUserRequest.getId();
+        User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        userRepository.save(pendingUser.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
     }
 
     /**
@@ -142,40 +149,39 @@ public class UserServiceImpl implements UserService {
         String userEmail = userCreateRequest.getEmail();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
-        if (!existedUser.getEmail().equals(userEmail) && emailExists)
-            throw new AlreadyExistEmailException(userEmail);
+        if (!existedUser.getEmail().equals(userEmail) && emailExists) throw new AlreadyExistEmailException(userEmail);
 
-        User user = existedUser.toBuilder()
-                .name(userCreateRequest.getName())
-                .email(userEmail)
-                .password(passwordEncoder.encode(userCreateRequest.getPassword()))
-                .latestLoginAt(LocalDateTime.now())
-                .status(statusRepository.getActiveStatus())
-                .build();
+        User user = existedUser.toBuilder().name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).latestLoginAt(LocalDateTime.now()).status(statusRepository.getActiveStatus()).build();
 
         userRepository.save(user);
     }
 
     /**
-     * 사용자를 탈퇴 처리하는 메소드입니다.
+     * 사용자를 비활성화 처리하는 메소드입니다.
      * 해당 사용자의 상태를 탈퇴 상태로 변경합니다.
      *
      * @param userId 탈퇴 처리하려는 사용자의 ID
      * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
-    public void deleteUser(String userId) {
+    public void deactivateUser(String userId) {
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
-        User user = existedUser.toBuilder()
-                .latestLoginAt(LocalDateTime.now())
-                .status(statusRepository.getDeactivatedStatus())
-                .build();
+        User user = existedUser.toBuilder().latestLoginAt(LocalDateTime.now()).status(statusRepository.getDeactivatedStatus()).build();
 
         userRepository.save(user);
-
-
     }
+
+
+    /**
+     * 사용자의 정보를 삭제하는 메소드입니다.
+     * @param userId 삭제 처리하려는 사용자의 ID
+     */
+    @Override
+    public void deleteUser(String userId) {
+        userRepository.deleteById(userId);
+    }
+
 
     /**
      * 매일 0시에 따라 사용자의 최종 로그인 시간을 확인하고,
@@ -197,15 +203,12 @@ public class UserServiceImpl implements UserService {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
         // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
-        if (existedUser.getLatestLoginAt() == null)
-            return;
+        if (existedUser.getLatestLoginAt() == null) return;
 
         if (existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
 
-            User user = existedUser.toBuilder()
-                    .status(inActiveStatus)
-                    .build();
+            User user = existedUser.toBuilder().status(inActiveStatus).build();
 
             userRepository.save(user);
         }
