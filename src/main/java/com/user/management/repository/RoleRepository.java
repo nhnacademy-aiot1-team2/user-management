@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * 역할(Role)에 대한 데이터를 접근하는 레포지터리입니다.
- * JpaRepository를 상속 받아 기본적인 CRUD 기능을 제공합니다.
  * Author : jjunho50
  */
 public interface RoleRepository extends JpaRepository<Role, Long> {

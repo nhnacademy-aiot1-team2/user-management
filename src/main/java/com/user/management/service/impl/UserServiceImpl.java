@@ -54,9 +54,17 @@ public class UserServiceImpl implements UserService {
         return userRepository.getAllUserData(pageable);
     }
 
+    /**
+     * 특정 statusId에 해당하는 사용자들의 정보를 페이징 처리하여 반환합니다.
+     *
+     * @param statusId 검색하려는 사용자 상태 ID.
+     * @param pageable 페이징 정보.
+     * @return UserDataResponse 객체의 페이지.
+     * @throws RuntimeException 해당 statusId가 존재하지 않을 경우 발생.
+     */
     @Override
     public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
-        if(!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
+        if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
         return userRepository.getUsersFilteredByStatusId(pageable, statusId);
     }
 
@@ -119,6 +127,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     * 사용자의 상태를 'Active'로 변경합니다.
+     *
+     * @param permitUserRequest 변경 대상 사용자의 정보를 가지고 있는 객체.
+     * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
+     */
     @Override
     public void permitUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
@@ -127,6 +141,12 @@ public class UserServiceImpl implements UserService {
         userRepository.save(pendingUser.toBuilder().status(statusRepository.getActiveStatus()).latestLoginAt(LocalDateTime.now()).build());
     }
 
+    /**
+     * 사용자를 'Admin' Role로 변경합니다.
+     *
+     * @param permitUserRequest 변경 대상 사용자의 정보를 가지고 있는 객체.
+     * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
+     */
     @Override
     public void promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
@@ -175,6 +195,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 사용자의 정보를 삭제하는 메소드입니다.
+     *
      * @param userId 삭제 처리하려는 사용자의 ID
      */
     @Override

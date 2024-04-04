@@ -8,18 +8,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    public Page<UserDataResponse> getAllUsers(String id, Pageable pageable);
+    Page<UserDataResponse> getAllUsers(String id, Pageable pageable);
+
     Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
 
-    public UserDataResponse getUserById(String id);
+    UserDataResponse getUserById(String id);
 
-    public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest);
+    UserDataResponse getUserLogin(UserLoginRequest userLoginRequest);
+
     void permitUser(PermitUserRequest permitUserRequest);
+
     void promoteUser(PermitUserRequest permitUserRequest);
 
     void createUser(UserCreateRequest userCreateRequest);
 
-    public void updateUser(UserCreateRequest userCreateRequest, String userId);
+    void updateUser(UserCreateRequest userCreateRequest, String userId);
 
     void deactivateUser(String id);
 

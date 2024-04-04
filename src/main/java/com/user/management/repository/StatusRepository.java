@@ -45,8 +45,7 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
      *
      * @return 승인대기 회원 상태, 예외 발생 가능성 x
      */
-    default Status getPendingStatus()
-    {
+    default Status getPendingStatus() {
         return findById(4L).orElse(null);
     }
 }

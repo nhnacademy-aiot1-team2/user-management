@@ -27,6 +27,20 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final ProviderRepository providerRepository;
 
+
+    /**
+     * OAuth2 인증 플로우 후에 사용자 정보를 로드하는 메소드입니다.
+     *
+     * 새로운 사용자의 요청인 경우 User 인스턴스를 새로 생성하고,
+     * 기존 사용자의 경우 마지막 로그인 시간만 업데이트합니다.
+     *
+     * OAuth2User 객체를 반환하므로, 이후 처리는 Spring Security에 의해 수행됩니다.
+     *
+     * @param userRequest OAuth2 인증 플로우 중에 생성된 사용자 정보가 담긴 요청 객체.
+     * @return 인증된 사용자를 나타내는 OAuth2User 객체.
+     * @throws OAuth2AuthenticationException 인증 중에 오류가 발생하거나,
+     *         유효하지 않은 OAuth2 요청이 수신된 경우 던져집니다.
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
