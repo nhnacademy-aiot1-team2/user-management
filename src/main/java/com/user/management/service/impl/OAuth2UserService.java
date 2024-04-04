@@ -30,7 +30,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         String username = provider + "_" + providerId; //중복이 발생하지 않도록 provider와 providerId를 조합
         String email = oAuth2User.getAttribute("email");
 
-        if (userRepository.existsById(username)) { //찾지 못했다면
+        if (!userRepository.existsById(username)) {
             User user = User.builder()
                     .id(username)
                     .name(username)
