@@ -49,6 +49,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> getByEmail(@Param("email") String email);
 
+    @Query("select u from User u where u.id = :id and u.role.id = 1")
+    Optional<User> getAdminUserById(@Param("id") String userId);
+
 
     Optional<User> findByName(String name);
 }
