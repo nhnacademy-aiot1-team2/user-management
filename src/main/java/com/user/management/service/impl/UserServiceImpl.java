@@ -77,10 +77,12 @@ public class UserServiceImpl implements UserService {
      *
      * @param id 조회하려는 사용자의 ID
      * @return UserDataResponse (id, name, email, roleName, statusName, password)
-     * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
+     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
+     * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
     public UserDataResponse getUserById(String id) {
+        if (id == null) throw new UserHeaderNotFoundException();
         return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
@@ -123,7 +125,7 @@ public class UserServiceImpl implements UserService {
         String userEmail = userCreateRequest.getEmail();
 
         if (userRepository.existsById(userId)) throw new UserAlreadyExistException(userId);
-        if (userRepository.getByEmail(userEmail).orElse(null) != null) throw new AlreadyExistEmailException(userEmail);
+        if (userRepository.getByEmail(userEmail).isPresent()) throw new AlreadyExistEmailException(userEmail);
 
         User user = User.builder().id(userCreateRequest.getId()).name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).role(roleRepository.getUserRole()).status(statusRepository.getPendingStatus()).createdAt(LocalDateTime.now()).latestLoginAt(LocalDateTime.now()).provider(providerRepository.getDefaultProvider()).build();
         userRepository.save(user);
@@ -163,8 +165,6 @@ public class UserServiceImpl implements UserService {
 
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
-
         userRepository.save(pendingUser.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
     }
 
@@ -174,18 +174,20 @@ public class UserServiceImpl implements UserService {
      *
      * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email)
      * @param userId            업데이트하려는 사용자의 ID
-     * @throws UserNotFoundException      사용자를 찾을 수 없을 때 발생하는 예외
-     * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
+     * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
+     * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
+     * @throws AlreadyExistEmailException  이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
     public void updateUser(UserCreateRequest userCreateRequest, String userId) {
+        if (userId == null) throw new UserHeaderNotFoundException();
+
         String userEmail = userCreateRequest.getEmail();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
         if (!existedUser.getEmail().equals(userEmail) && emailExists) throw new AlreadyExistEmailException(userEmail);
 
         User user = existedUser.toBuilder().name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).latestLoginAt(LocalDateTime.now()).status(statusRepository.getActiveStatus()).build();
-
         userRepository.save(user);
     }
 
@@ -194,10 +196,13 @@ public class UserServiceImpl implements UserService {
      * 해당 사용자의 상태를 탈퇴 상태로 변경합니다.
      *
      * @param userId 탈퇴 처리하려는 사용자의 ID
-     * @throws UserNotFoundException 사용자를 찾을 수 없을 때 발생하는 예외
+     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
+     * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
     public void deactivateUser(String userId) {
+        if (userId == null) throw new UserHeaderNotFoundException();
+
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         User user = existedUser.toBuilder().latestLoginAt(LocalDateTime.now()).status(statusRepository.getDeactivatedStatus()).build();
         userRepository.save(user);
@@ -208,9 +213,9 @@ public class UserServiceImpl implements UserService {
      * 사용자의 정보를 삭제하는 메소드입니다.
      *
      * @param userId 삭제 처리하려는 사용자의 ID
-     * @throws UserNotFoundException              사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
+     * @throws UserNotFoundException               사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
      * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException              AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
+     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
      * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
@@ -238,7 +243,7 @@ public class UserServiceImpl implements UserService {
      *
      * @param existedUser 휴면 상태를 확인할 사용자
      */
-    public void checkAndUpdateInactivity(User existedUser) {
+    protected void checkAndUpdateInactivity(User existedUser) {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
         // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
@@ -253,7 +258,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void checkAdminAccess(String id) {
+    protected void checkAdminAccess(String id) {
         if (id == null)
             throw new UserHeaderNotFoundException();
 

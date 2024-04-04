@@ -3,7 +3,6 @@ package com.user.management.controller;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
-import com.user.management.exception.UserHeaderNotFoundException;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,13 +25,9 @@ public class UserController {
      *
      * @param id 사용자 ID
      * @return 검색된 사용자 정보
-     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
      */
     @GetMapping("/myPage")
     public ResponseEntity<UserDataResponse> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
-        if (id == null)
-            throw new UserHeaderNotFoundException();
-
         return ResponseEntity.ok().body(userService.getUserById(id));
     }
 
@@ -65,13 +60,9 @@ public class UserController {
      * @param userCreateRequest 사용자 갱신 요청에 필요한 데이터 (id, name, password, email)
      * @param id                사용자 ID
      * @return 상태 코드 204 (내용 없음)
-     * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
      */
     @PutMapping("/update")
     public ResponseEntity<Void> updateUser(@RequestBody UserCreateRequest userCreateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
-        if (id == null)
-            throw new UserHeaderNotFoundException();
-
         userService.updateUser(userCreateRequest, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -82,13 +73,9 @@ public class UserController {
      *
      * @param id 사용자 ID
      * @return 상태 코드 204 (내용 없음)
-     * @throws UserHeaderNotFoundException X-USER-ID header 가 존재하지 않는 경우에 발생
      */
     @PostMapping("/deactivate")
     public ResponseEntity<Void> deactivateUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
-        if (id == null)
-            throw new UserHeaderNotFoundException();
-
         userService.deactivateUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
