@@ -1,8 +1,10 @@
 package com.user.management.data;
 
+import com.user.management.entity.Provider;
 import com.user.management.entity.Status;
 import com.user.management.entity.Role;
 import com.user.management.entity.User;
+import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.UserRepository;
@@ -25,6 +27,7 @@ public class DataLoader implements CommandLineRunner {
     private final StatusRepository statusRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final ProviderRepository providerRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -52,6 +55,14 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(2L, "ROLE_USER")); // 사용자
         }
 
+        if (!providerRepository.existsById("Google")) {
+            providerRepository.save(new Provider("Google", "184388168422-f0am033m0j6l1vv0aga22djla1u8qi6d.apps.googleusercontent.com"));
+        }
+
+        if (!providerRepository.existsById("Default")) {
+            providerRepository.save(new Provider("Default", "contxt.co.kr"));
+        }
+
         if (!userRepository.existsById(ADMIN)) {
 
             userRepository.save(User.builder()
@@ -63,6 +74,7 @@ public class DataLoader implements CommandLineRunner {
                     .email("admin@example.com") // 이메일
                     .status(statusRepository.getActiveStatus()) // 상태는 'ACTIVE'(활성)
                     .role(roleRepository.getAdminRole()) // 역할은 'ROLE_ADMIN'(관리자)
+                    .provider(providerRepository.getDefaultProvider())
                     .build());
         }
     }

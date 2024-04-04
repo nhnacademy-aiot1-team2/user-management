@@ -6,6 +6,7 @@ import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
+import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final StatusRepository statusRepository;
+    private final ProviderRepository providerRepository;
 
     /**
      * 모든 사용자 정보를 가져옵니다. (관리자만 요청 가능)
@@ -119,6 +121,7 @@ public class UserServiceImpl implements UserService {
                 .status(statusRepository.getActiveStatus())
                 .createdAt(LocalDateTime.now())
                 .latestLoginAt(LocalDateTime.now())
+                .provider(providerRepository.getDefaultProvider())
                 .build();
 
         userRepository.save(user);

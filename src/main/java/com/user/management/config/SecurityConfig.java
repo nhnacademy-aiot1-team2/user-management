@@ -29,6 +29,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .httpBasic().disable()
+                .csrf().disable()
+                .cors().and()
                 .authorizeRequests()
                 .anyRequest().permitAll() //나머지 uri는 모든 접근 허용
                 .and().oauth2Login()

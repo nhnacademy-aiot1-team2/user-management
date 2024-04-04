@@ -37,25 +37,29 @@ public class User {
     @JoinColumn(name = "status_id")
     private Status status;
 
+    @OneToOne
+    @JoinColumn(name = "provider_id")
+    private Provider provider;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt; // 회원가입일자
 
     @Column(name = "latest_login_at")
     private LocalDateTime latestLoginAt; // 마지막 접속일
-    private String provider; //공급자 (google, facebook ...)
-    private String providerId; //공급 아이디
+
+
 
     @Builder
-    public User(String id, String name, String password, String email, Role role, Status status, LocalDateTime createdAt, LocalDateTime latestLoginAt, String provider, String providerId) {
+
+    public User(String id, String name, String password, String email, Role role, Status status, Provider provider, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.email = email;
         this.role = role;
         this.status = status;
+        this.provider = provider;
         this.createdAt = createdAt;
         this.latestLoginAt = latestLoginAt;
-        this.provider = provider;
-        this.providerId = providerId;
     }
 }
