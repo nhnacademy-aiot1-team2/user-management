@@ -2,6 +2,7 @@ package com.user.management.service.impl;
 
 import com.user.management.entity.Provider;
 import com.user.management.entity.User;
+import com.user.management.exception.AlreadyExistEmailException;
 import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.ProviderNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +32,16 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String providerId = oAuth2User.getAttribute("sub");
+        if(providerId == null)
+            providerId = Objects.requireNonNull(oAuth2User.getAttribute("id")).toString();
+
         String email = oAuth2User.getAttribute("email");
-        Provider provider = providerRepository.findByName(userRequest.getClientRegistration().getClientId())
+        if(email == null) email = oAuth2User.getAttribute("login") + "@example.com";
+
+        if(userRepository.getByEmail(email).isPresent()) throw new AlreadyExistEmailException(email);
+
+        String nameKey = userRequest.getClientRegistration().getClientId();
+        Provider provider = providerRepository.findByName(nameKey)
                 .orElseThrow(ProviderNotFoundException::new);
         String username = provider.getId() + "_" + providerId; //중복이 발생하지 않도록 provider와 providerId를 조합
 
