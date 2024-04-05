@@ -189,11 +189,12 @@ public class UserServiceImpl implements UserService {
     /**
      * 사용자의 정보를 삭제하는 메소드입니다. (관리자만 요청 가능)
      *
-     * @param userId 삭제 처리하려는 사용자의 ID
+     * @param deleteUserRequest 삭제 처리하려는 사용자의 ID
      * @throws UserNotFoundException 사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
      */
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(DeleteUserRequest deleteUserRequest) {
+        String userId = deleteUserRequest.getId();
         if (!userRepository.existsById(userId)) throw new RuntimeException("이미 존재하지 않는 userId 입니다.");
         userRepository.deleteById(userId);
     }

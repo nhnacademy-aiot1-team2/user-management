@@ -9,8 +9,8 @@ POST http://localhost:8200/api/user/login
 Content-Type: application/json
 
 {
-  "id": "admin",
-  "password": "1234"
+  "id": "zxcv",
+  "password": "zxcv"
 }
 
 ###
@@ -19,10 +19,10 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "zxcv1",
-  "name": "zxcv1",
-  "password": "zxcv1",
-  "email": "zxcv1@gmail.com"
+  "id": "zxcv",
+  "name": "zxcv",
+  "password": "zxcv",
+  "email": "zxcv@gmail.com"
 }
 
 ###
@@ -39,8 +39,8 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8200/api/user/delete
-X-USER-ID:test2
+POST http://localhost:8200/api/user/deactivate
+X-USER-ID:asdf
 
 ###
 

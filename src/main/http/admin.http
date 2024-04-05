@@ -13,23 +13,56 @@ POST http://localhost:8200/api/user/admin/promotion
 Content-Type: application/json
 
 {
-  "id": "asdf"
+  "id": "zxcv"
 }
+
+###
+
+#POST http://localhost:8200/api/user/admin/demotion
+#Content-Type: application/json
+#
+#{
+#  "id": "asdf"
+#}
 
 ###
 
 POST http://localhost:8200/api/user/admin/permit
 Content-Type: application/json
 
-{
-  "id": "zxcv1"
-}
+[
+  {
+    "id": "asdf"
+  },
+  {
+    "id": "zxcv"
+  }
+]
+
+###
+
+POST http://localhost:8200/api/user/admin/reject/delete
+Content-Type: application/json
+
+[
+  {
+    "id": "asdf"
+  },
+  {
+    "id": "zxcv"
+  }
+]
 
 ###
 
 DELETE http://localhost:8200/api/user/admin/delete
 Content-Type: application/json
 
-{
-  "deleteUserId": "zxcv1"
-}
+[
+  {
+    "id": "zxcv"
+  },
+  {
+    "id": "asdf"
+  }
+]

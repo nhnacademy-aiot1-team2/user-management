@@ -73,24 +73,33 @@ public class AdminController {
     /**
      * 승인 대기 중인 사용자에게 일반 권한을 부여합니다
      *
-     * @param permitUserRequest 권한을 부여할 사용자의 정보를 포함하는 요청 본문.
+     * @param permitUserRequestList 권한을 부여할 사용자의 정보를 포함하는 요청 본문.
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/permit")
-    public ResponseEntity<Void> permitUser(@RequestBody PermitUserRequest permitUserRequest) {
-        userService.permitUser(permitUserRequest);
+    public ResponseEntity<Void> permitUser(@RequestBody List<PermitUserRequest> permitUserRequestList) {
+        permitUserRequestList.parallelStream().forEach(userService::permitUser);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    @PostMapping("/reject/delete")
+    public ResponseEntity<Void> rejectDeleteUser(@RequestBody List<DeleteUserRequest> deleteUserRequestList) {
+        deleteUserRequestList.stream()
+                .map(request -> new PermitUserRequest(request.getId()))
+                .forEach(userService::permitUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
      * 사용자 데이터를 완전히 삭제합니다.
      *
-     * @param deleteUserRequest 삭제할 사용자의 정보를 포함하는 요청 본문.
+     * @param deleteUserRequestList 삭제할 사용자의 리스트 정보를 포함하는 요청 본문.
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
-        userService.deleteUser(deleteUserRequest.getDeleteUserId());
+    public ResponseEntity<Void> deleteUser(@RequestBody List<DeleteUserRequest> deleteUserRequestList) {
+        deleteUserRequestList.parallelStream().forEach(userService::deleteUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

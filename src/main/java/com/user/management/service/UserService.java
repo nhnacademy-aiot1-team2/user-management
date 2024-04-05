@@ -23,6 +23,6 @@ public interface UserService {
 
     void deactivateUser(String userId);
 
-    void deleteUser(String id);
+    void deleteUser(DeleteUserRequest deleteUserRequest);
 
 }
