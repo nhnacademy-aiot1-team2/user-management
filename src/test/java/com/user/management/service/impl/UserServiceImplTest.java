@@ -78,7 +78,7 @@ class UserServiceImplTest {
         when(userRepository.getRoleByUserId(userId)).thenReturn(roleAdmin);
         when(userRepository.getAllUserData(pageable)).thenReturn(expectedPage);
 
-        Page<UserDataResponse> page = userService.getAllUsers(userId, pageable);
+        Page<UserDataResponse> page = userService.getAllUsers(pageable);
 
         assertEquals(expectedPage.getSize(), page.getSize());
         assertEquals(expectedPage.getContent().get(0).getId(), page.getContent().get(0).getId());

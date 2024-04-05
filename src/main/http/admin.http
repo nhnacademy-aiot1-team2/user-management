@@ -1,18 +1,24 @@
 // 모든 UserList 조회 가능
-GET http://localhost:8200/api/admin/userList
-X-USER-ID:admin
+GET http://localhost:8200/api/user/admin/userList?page=1&size=3
 Accept: application/json
 
 ###
 
-GET http://localhost:8200/api/admin/userList/sort/4
-X-USER-ID:admin
+GET http://localhost:8200/api/user/admin/userList/sort/1?page=1&size=2
 Accept: application/json
 
 ###
 
-POST http://localhost:8200/api/admin/promotion
-X-USER-ID:admin
+POST http://localhost:8200/api/user/admin/promotion
+Content-Type: application/json
+
+{
+  "id": "asdf"
+}
+
+###
+
+POST http://localhost:8200/api/user/admin/permit
 Content-Type: application/json
 
 {
@@ -21,18 +27,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8200/api/admin/permit
-X-USER-ID:admin
-Content-Type: application/json
-
-{
-  "id": "zxcv1"
-}
-
-###
-
-DELETE http://localhost:8200/api/admin/delete
-X-USER-ID:admin
+DELETE http://localhost:8200/api/user/admin/delete
 Content-Type: application/json
 
 {

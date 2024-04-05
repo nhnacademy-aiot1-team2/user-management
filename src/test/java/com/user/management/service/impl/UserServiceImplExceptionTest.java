@@ -52,7 +52,7 @@ class UserServiceImplExceptionTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(userRepository.existsById(userId)).thenReturn(false);
-        assertThrows(UserNotFoundException.class, () -> userService.getAllUsers(userId, pageable));
+        assertThrows(UserNotFoundException.class, () -> userService.getAllUsers(pageable));
     }
 
     @Test
@@ -65,7 +65,7 @@ class UserServiceImplExceptionTest {
         when(userRepository.existsById(userId)).thenReturn(true);
         when(userRepository.getRoleByUserId(userId)).thenReturn(roleUser);
 
-        assertThrows(OnlyAdminCanAccessUserDataException.class, () -> userService.getAllUsers(userId, pageable));
+        assertThrows(OnlyAdminCanAccessUserDataException.class, () -> userService.getAllUsers(pageable));
     }
 
     @Test

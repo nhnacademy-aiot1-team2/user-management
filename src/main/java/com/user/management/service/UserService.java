@@ -5,17 +5,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    Page<UserDataResponse> getAllUsers(String adminUserId, Pageable pageable);
+    Page<UserDataResponse> getAllUsers(Pageable pageable);
 
-    Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable, String adminUserId);
+    Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
 
     UserDataResponse getUserById(String id);
 
     UserDataResponse getUserLogin(UserLoginRequest userLoginRequest);
 
-    void permitUser(PermitUserRequest permitUserRequest, String adminUserId);
+    void permitUser(PermitUserRequest permitUserRequest);
 
-    void promoteUser(PermitUserRequest permitUserRequest, String adminUserId);
+    void promoteUser(PermitUserRequest permitUserRequest);
 
     void createUser(UserCreateRequest userCreateRequest);
 
@@ -23,6 +23,6 @@ public interface UserService {
 
     void deactivateUser(String userId);
 
-    void deleteUser(String id, String adminUserId);
+    void deleteUser(String id);
 
 }
