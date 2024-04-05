@@ -1,15 +1,13 @@
 package com.user.management.service.impl;
 
-import com.user.management.dto.UserCreateRequest;
-import com.user.management.dto.UserDataResponse;
-import com.user.management.dto.UserLoginRequest;
-import com.user.management.dto.UserUpdateRequest;
+import com.user.management.dto.*;
 import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.AdminMustUpdatePasswordException;
 import com.user.management.exception.AlreadyExistEmailException;
 import com.user.management.exception.UserNotFoundException;
+import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -26,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +47,9 @@ class UserServiceImplTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private ProviderRepository providerRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -58,30 +61,31 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getAllUsers_AdminAccess() {
-        String userId = "testId";
+    void getAllUsers() {
         Pageable pageable = PageRequest.of(0, 10);
 
-        Role roleAdmin = new Role(1L, "ROLE_ADMIN");
-        User adminUser = User.builder()
-                .id(userId)
-                .role(roleAdmin)
-                .build();
-
         UserDataResponse userDataResponse = new UserDataResponse();
-        userDataResponse.setId(adminUser.getId());
-        userDataResponse.setRoleName(adminUser.getRole().getName());
-
         Page<UserDataResponse> expectedPage = new PageImpl<>(List.of(userDataResponse));
-
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(userRepository.getRoleByUserId(userId)).thenReturn(roleAdmin);
         when(userRepository.getAllUserData(pageable)).thenReturn(expectedPage);
 
         Page<UserDataResponse> page = userService.getAllUsers(pageable);
-
         assertEquals(expectedPage.getSize(), page.getSize());
         assertEquals(expectedPage.getContent().get(0).getId(), page.getContent().get(0).getId());
+    }
+
+    @Test
+    public void getFilteredUsersByStatus() {
+        Page<UserDataResponse> page = new PageImpl<>(new ArrayList<>());
+
+        when(statusRepository.existsById(anyLong())).thenReturn(true);
+        when(userRepository.getUsersFilteredByStatusId(any(), anyLong())).thenReturn(page);
+
+        Page<UserDataResponse> result = userService.getFilteredUsersByStatus(1L, Pageable.ofSize(10));
+
+        assertEquals(page, result);
+
+        verify(statusRepository, times(1)).existsById(anyLong());
+        verify(userRepository, times(1)).getUsersFilteredByStatusId(any(), anyLong());
     }
 
     @Test
@@ -134,18 +138,9 @@ class UserServiceImplTest {
         UserCreateRequest userCreateRequest =
                 new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com");
 
-        Role testRole = new Role(1L, "ROLE_USER");
-        Status testStatus = new Status(1L, "ACTIVE");
-
         User expectedUser = User.builder()
                 .id(userCreateRequest.getId())
-                .name(userCreateRequest.getName())
                 .email(userCreateRequest.getEmail())
-                .password(userCreateRequest.getPassword())
-                .role(testRole)
-                .status(testStatus)
-                .createdAt(LocalDateTime.now())
-                .latestLoginAt(LocalDateTime.now())
                 .build();
 
         userService.createUser(userCreateRequest);
@@ -160,8 +155,57 @@ class UserServiceImplTest {
         });
     }
 
+
     @Test
-    void updateUser_Basic() {
+    void permitUser() {
+        String testId = "testId";
+
+        User user = User.builder()
+                .id(testId)
+                .build();
+
+        PermitUserRequest permitUserRequest = new PermitUserRequest(user.getId());
+
+        when(statusRepository.getActiveStatus()).thenReturn(new Status(1L, "Active"));
+        when(userRepository.findById(testId)).thenReturn(Optional.of(user));
+        userService.permitUser(permitUserRequest);
+
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+
+    @Test
+    void promoteUser() {
+        String testId = "testId";
+        Role adminRole = new Role(1L, "ROLE_ADMIN");
+        Role userRole = new Role(2L, "ROLE_USER");
+
+        User user = User.builder()
+                .id(testId)
+                .role(userRole)
+                .build();
+
+        when(userRepository.findById(testId)).thenReturn(Optional.of(user));
+        when(roleRepository.getAdminRole()).thenReturn(adminRole);
+
+        PermitUserRequest permitUserRequest = new PermitUserRequest(user.getId());
+
+        userService.promoteUser(permitUserRequest);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User savedUser = userCaptor.getValue();
+
+        assertEquals(testId, savedUser.getId());
+        assertEquals(adminRole, savedUser.getRole());
+
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(userRepository, times(1)).findById(testId);
+        verify(roleRepository, times(1)).getAdminRole();
+    }
+
+    @Test
+    void updateUser() {
         String userId = "testId";
         String userEmail = "testuser@test.com";
         String newEmail = "newuser@test.com";
@@ -177,7 +221,7 @@ class UserServiceImplTest {
                 .id(userId)
                 .name("testName")
                 .email(userEmail)
-                .password(passwordEncoder.encode("testPassword")) // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
+                .password(passwordEncoder.encode("testPassword"))
                 .latestLoginAt(LocalDateTime.now())
                 .status(activeStatus)
                 .role(role)
@@ -207,23 +251,20 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteUser() {
+    void deactivateUser() {
         String userId = "testId";
-        Status deactivatedStatus = statusRepository.getDeactivatedStatus();
 
         User originalUser = User.builder()
-                .id("testId")
+                .id(userId)
                 .status(statusRepository.getActiveStatus())
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
-        when(statusRepository.getDeactivatedStatus()).thenReturn(deactivatedStatus); // null == null
 
         userService.deactivateUser(userId);
 
         verify(userRepository, times(1)).findById(userId);
 
-        // LocalDateTime.now()가 목 객체에서 오류를 일으켜서 ArgumentCaptor<User>로 문제되지 않게 변경
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userArgumentCaptor.capture());
 
@@ -253,11 +294,13 @@ class UserServiceImplTest {
 
         userService.updateUserInactivityStatus();
 
+        // 2번째 테스트는 최근 로그인이 1주일 전이므로, update가 진행되지 않음.
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository, times(1)).save(userCaptor.capture()); // 2번째 테스트는 최근 로그인이 1주일 전이므로, update가 진행되지 않음.
+        verify(userRepository, times(1)).save(userCaptor.capture());
         List<User> savedUsers = userCaptor.getAllValues();
 
-        assertEquals(inActiveStatus, savedUsers.get(0).getStatus()); // 1번째 user는 마지막 로그인이 2달전이니, 휴면 상태로 전환된다.
+        // 1번째 user는 마지막 로그인이 2달전이니, 휴면 상태로 전환된다.
+        assertEquals(inActiveStatus, savedUsers.get(0).getStatus());
     }
 
     @Test

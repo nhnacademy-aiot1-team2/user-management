@@ -141,8 +141,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
-        User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        userRepository.save(pendingUser.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.save(user.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
     }
 
     /**
