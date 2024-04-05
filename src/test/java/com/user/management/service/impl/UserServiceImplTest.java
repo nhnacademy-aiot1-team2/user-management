@@ -3,6 +3,7 @@ package com.user.management.service.impl;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
+import com.user.management.dto.UserUpdateRequest;
 import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
@@ -166,8 +167,8 @@ class UserServiceImplTest {
         String newEmail = "newuser@test.com";
 
         // 패스워드 변경 상태 확인을 위해, passwordEncode 메소드를 사용하지 않음.
-        UserCreateRequest updateRequest =
-                new UserCreateRequest(userId, "newName", "newPassword", newEmail);
+        UserUpdateRequest updateRequest =
+                new UserUpdateRequest("newName", "newPassword", newEmail);
 
         Status activeStatus = new Status(1L, "ACTIVE");
         Role role = new Role(2L, "ROLE_USER");

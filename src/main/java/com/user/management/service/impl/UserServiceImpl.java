@@ -1,9 +1,6 @@
 package com.user.management.service.impl;
 
-import com.user.management.dto.PermitUserRequest;
-import com.user.management.dto.UserCreateRequest;
-import com.user.management.dto.UserDataResponse;
-import com.user.management.dto.UserLoginRequest;
+import com.user.management.dto.*;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
@@ -42,13 +39,9 @@ public class UserServiceImpl implements UserService {
      * @param adminUserId 검증할 사용자 ID, 없으면 예외 발생
      * @param pageable    페이징 정보
      * @return 사용자 정보를 포함하는 Page<UserDataResponse> 객체
-     * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
     public Page<UserDataResponse> getAllUsers(String adminUserId, Pageable pageable) {
-        checkAdminAccess(adminUserId);
         return userRepository.getAllUserData(pageable);
     }
 
@@ -60,13 +53,9 @@ public class UserServiceImpl implements UserService {
      * @param pageable 페이징 정보.
      * @return UserDataResponse 객체의 페이지.
      * @throws RuntimeException                    해당 statusId가 존재하지 않을 경우 발생.
-     * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
     public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable, String adminUserId) {
-        checkAdminAccess(adminUserId);
         if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
         return userRepository.getUsersFilteredByStatusId(pageable, statusId);
     }
@@ -137,16 +126,11 @@ public class UserServiceImpl implements UserService {
      *
      * @param permitUserRequest 변경 대상 사용자의 정보를 가지고 있는 객체.
      * @throws UserNotFoundException               해당 사용자가 존재하지 않을 경우 발생.
-     * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
     public void permitUser(PermitUserRequest permitUserRequest, String adminUserId) {
-        checkAdminAccess(adminUserId);
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
         userRepository.save(pendingUser.toBuilder().status(statusRepository.getActiveStatus()).latestLoginAt(LocalDateTime.now()).build());
     }
 
@@ -155,14 +139,9 @@ public class UserServiceImpl implements UserService {
      *
      * @param permitUserRequest 변경 대상 사용자의 정보를 가지고 있는 객체.
      * @throws UserNotFoundException               해당 사용자가 존재하지 않을 경우 발생.
-     * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
     public void promoteUser(PermitUserRequest permitUserRequest, String adminUserId) {
-        checkAdminAccess(adminUserId);
-
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         userRepository.save(pendingUser.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
@@ -172,22 +151,22 @@ public class UserServiceImpl implements UserService {
      * 사용자 정보를 업데이트하는 메소드입니다.
      * userId는 primary key 값으로 변경할 수 없습니다. Front Server 에서 UserCreateRequest.userId는 사용자가 아닌 서버가 등록할 수 있게 해주세요.
      *
-     * @param userCreateRequest 사용자 업데이트 요청 정보 (id, name, password, email)
+     * @param userUpdateRequest 사용자 업데이트 요청 정보 (id, name, password, email)
      * @param userId            업데이트하려는 사용자의 ID
      * @throws UserHeaderNotFoundException X-USER-ID header가 존재하지 않는 경우에 발생
      * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      * @throws AlreadyExistEmailException  이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
-    public void updateUser(UserCreateRequest userCreateRequest, String userId) {
+    public void updateUser(UserUpdateRequest userUpdateRequest, String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
-        String userEmail = userCreateRequest.getEmail();
+        String userEmail = userUpdateRequest.getEmail();
         User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
         if (!existedUser.getEmail().equals(userEmail) && emailExists) throw new AlreadyExistEmailException(userEmail);
 
-        User user = existedUser.toBuilder().name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).latestLoginAt(LocalDateTime.now()).status(statusRepository.getActiveStatus()).build();
+        User user = existedUser.toBuilder().name(userUpdateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userUpdateRequest.getPassword())).latestLoginAt(LocalDateTime.now()).status(statusRepository.getActiveStatus()).build();
         userRepository.save(user);
     }
 
@@ -214,15 +193,10 @@ public class UserServiceImpl implements UserService {
      *
      * @param userId 삭제 처리하려는 사용자의 ID
      * @throws UserNotFoundException               사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws UserHeaderNotFoundException         header == null 일 때, 이 예외를 발생
-     * @throws UserNotFoundException               AdminUserId가 존재하지 않을 경우 이 예외를 발생시킵니다.
-     * @throws OnlyAdminCanAccessUserDataException 사용자의 역할이 관리자가 아닐 경우 이 예외를 발생시킵니다.
      */
     @Override
     public void deleteUser(String userId, String adminUserId) {
         if (!userRepository.existsById(userId)) throw new UserNotFoundException(userId);
-
-        checkAdminAccess(adminUserId);
         userRepository.deleteById(userId);
     }
 
@@ -245,27 +219,13 @@ public class UserServiceImpl implements UserService {
      */
     protected void checkAndUpdateInactivity(User existedUser) {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-
         // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
         if (existedUser.getLatestLoginAt() == null) return;
 
         if (existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
-
             User user = existedUser.toBuilder().status(inActiveStatus).build();
-
             userRepository.save(user);
-        }
-    }
-
-    protected void checkAdminAccess(String id) {
-        if (id == null)
-            throw new UserHeaderNotFoundException();
-
-        if (!userRepository.existsById(id)) throw new UserNotFoundException(id);
-
-        if (userRepository.getAdminUserById(id).isEmpty()) {
-            throw new OnlyAdminCanAccessUserDataException();
         }
     }
 }

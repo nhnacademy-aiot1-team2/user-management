@@ -3,6 +3,7 @@ package com.user.management.controller;
 import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.dto.UserLoginRequest;
+import com.user.management.dto.UserUpdateRequest;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,13 +58,13 @@ public class UserController {
     /**
      * 사용자 정보를 업데이트하는 메소드
      *
-     * @param userCreateRequest 사용자 갱신 요청에 필요한 데이터 (id, name, password, email)
+     * @param userUpdateRequest 사용자 갱신 요청에 필요한 데이터 (id, name, password, email)
      * @param id                사용자 ID
      * @return 상태 코드 204 (내용 없음)
      */
     @PutMapping("/update")
-    public ResponseEntity<Void> updateUser(@RequestBody UserCreateRequest userCreateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
-        userService.updateUser(userCreateRequest, id);
+    public ResponseEntity<Void> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
+        userService.updateUser(userUpdateRequest, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

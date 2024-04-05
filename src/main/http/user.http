@@ -32,10 +32,9 @@ X-USER-ID:admin
 Content-Type: application/json
 
 {
-  "id": "admin",
-  "name": "admin",
+  "name": "updatedAdmin",
   "password": "1234",
-  "email": "admin@gmail.com"
+  "email": "updatedAdmin@gmail.com"
 }
 
 ###

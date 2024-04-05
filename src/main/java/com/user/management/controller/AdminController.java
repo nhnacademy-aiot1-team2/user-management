@@ -4,7 +4,6 @@ package com.user.management.controller;
 import com.user.management.dto.DeleteUserRequest;
 import com.user.management.dto.PermitUserRequest;
 import com.user.management.dto.UserDataResponse;
-import com.user.management.exception.UserHeaderNotFoundException;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/user/admin")
 @RequiredArgsConstructor
 public class AdminController {
     private final UserService userService;
@@ -35,8 +34,6 @@ public class AdminController {
             @RequestHeader(value = "X-USER-ID", required = false) String id,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
-
-
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getAllUsers(id, pageable);
 

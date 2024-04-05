@@ -1,9 +1,6 @@
 package com.user.management.service;
 
-import com.user.management.dto.PermitUserRequest;
-import com.user.management.dto.UserCreateRequest;
-import com.user.management.dto.UserDataResponse;
-import com.user.management.dto.UserLoginRequest;
+import com.user.management.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,7 +19,7 @@ public interface UserService {
 
     void createUser(UserCreateRequest userCreateRequest);
 
-    void updateUser(UserCreateRequest userCreateRequest, String userId);
+    void updateUser(UserUpdateRequest userUpdateRequest, String userId);
 
     void deactivateUser(String userId);
 
