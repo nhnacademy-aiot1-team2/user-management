@@ -25,10 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -86,6 +83,27 @@ class UserServiceImplTest {
 
         verify(statusRepository, times(1)).existsById(anyLong());
         verify(userRepository, times(1)).getUsersFilteredByStatusId(any(), anyLong());
+    }
+
+    @Test
+    public void getFilteredUsersByRole() {
+        Long roleId = 1L;
+        Pageable pageable = PageRequest.of(0, 5);
+
+        UserDataResponse userDataResponse = new UserDataResponse();
+        List<UserDataResponse> userDataResponses = Collections.singletonList(userDataResponse);
+
+        Page<UserDataResponse> page = new PageImpl<>(userDataResponses, pageable, userDataResponses.size());
+
+        when(userRepository.getUsersFilteredByRoleId(pageable, roleId)).thenReturn(page);
+
+        Page<UserDataResponse> result = userService.getFilteredUsersByRole(roleId, pageable);
+
+        assertNotNull(result);
+        assertEquals(page.getTotalPages(), result.getTotalPages());
+        assertEquals(page.getContent(), result.getContent());
+
+        verify(userRepository, times(1)).getUsersFilteredByRoleId(pageable, roleId);
     }
 
     @Test

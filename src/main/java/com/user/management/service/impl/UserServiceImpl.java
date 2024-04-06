@@ -58,6 +58,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.getUsersFilteredByStatusId(pageable, statusId);
     }
 
+    @Override
+    public Page<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable) {
+        return userRepository.getUsersFilteredByRoleId(pageable, roleId);
+    }
+
 
     /**
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.

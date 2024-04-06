@@ -8,6 +8,7 @@ public interface UserService {
     Page<UserDataResponse> getAllUsers(Pageable pageable);
 
     Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
+    Page<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable);
 
     UserDataResponse getUserById(String id);
 
