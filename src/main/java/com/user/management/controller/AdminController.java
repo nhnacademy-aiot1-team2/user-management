@@ -59,8 +59,8 @@ public class AdminController {
     /**
      * 특정 권한을 가진 사용자의 정보를 페이지 별로 조회합니다.
      *
-     * @param page     반환할 페이지 번호.
-     * @param size     한 페이지에 포함될 항목 수.
+     * @param page   반환할 페이지 번호.
+     * @param size   한 페이지에 포함될 항목 수.
      * @param roleId 검색할 사용자 권한 1. ROLE_ADMIN, 2. ROLE_USER
      * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
      */

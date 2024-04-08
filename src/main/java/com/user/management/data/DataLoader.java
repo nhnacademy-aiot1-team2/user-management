@@ -64,7 +64,7 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (!providerRepository.existsById("Default")) {
-            providerRepository.save(new Provider("Default", "contxt.co.kr"));
+            providerRepository.save(new Provider("Default", "www.contxt.co.kr"));
         }
 
         if (!providerRepository.existsById("Github")) {
