@@ -3,6 +3,7 @@ package com.user.management.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,8 +39,11 @@ public class GlobalExceptionHandler {
             jsonException.printStackTrace();
         }
 
-        return new ResponseEntity<>(errorDetails.toString(4), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(errorDetails.toString(4));
     }
+
 
 
 }
