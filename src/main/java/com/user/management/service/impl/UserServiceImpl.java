@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 사용자 관련 서비스를 구현한 클래스입니다.
@@ -41,7 +42,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Page<UserDataResponse> getAllUsers(Pageable pageable) {
-        return userRepository.getAllUserData(pageable);
+        Page<UserDataResponse> allUserData = userRepository.getAllUserData(pageable);
+        if (Objects.isNull(allUserData) || allUserData.getContent().isEmpty()) {
+            throw new UserNotFoundException("user list empty");
+        }
+
+        return allUserData;
     }
 
     /**

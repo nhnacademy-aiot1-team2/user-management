@@ -4,7 +4,11 @@ import com.user.management.dto.UserCreateRequest;
 import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Role;
 import com.user.management.entity.User;
-import com.user.management.exception.*;
+import com.user.management.exception.AlreadyExistEmailException;
+import com.user.management.exception.InvalidPasswordException;
+import com.user.management.exception.UserAlreadyExistException;
+import com.user.management.exception.UserNotFoundException;
+import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -13,11 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,6 +41,9 @@ class UserServiceImplExceptionTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private ProviderRepository providerRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -48,24 +57,10 @@ class UserServiceImplExceptionTest {
 
     @Test
     void getAllUsers_UserNotFoundTest() {
-        String userId = "invalidId";
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userRepository.getAllUserData(pageable)).thenReturn(new PageImpl<>(Collections.emptyList()));
         assertThrows(UserNotFoundException.class, () -> userService.getAllUsers(pageable));
-    }
-
-    @Test
-    void getAllUsers_NotAnAdmin() {
-        String userId = "RoleUserId";
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Role roleUser = new Role(2L, "ROLE_USER");
-
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(userRepository.getRoleByUserId(userId)).thenReturn(roleUser);
-
-        assertThrows(OnlyAdminCanAccessUserDataException.class, () -> userService.getAllUsers(pageable));
     }
 
     @Test

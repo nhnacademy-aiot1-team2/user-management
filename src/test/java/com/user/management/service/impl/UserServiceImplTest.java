@@ -10,6 +10,7 @@ import com.user.management.entity.User;
 import com.user.management.exception.AdminMustUpdatePasswordException;
 import com.user.management.exception.AlreadyExistEmailException;
 import com.user.management.exception.UserNotFoundException;
+import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
@@ -45,6 +46,9 @@ class UserServiceImplTest {
 
     @Mock
     private RoleRepository roleRepository;
+
+    @Mock
+    private ProviderRepository providerRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
