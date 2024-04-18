@@ -1,13 +1,24 @@
 package com.user.management.entity;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * user entity class
+ *
+ * @author parksangwon
+ * @version 1.0.0
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Users")
+@Builder(toBuilder = true)
+@Table(name = "users")
 public class User {
     @Id
     @Column(name = "user_id")
@@ -22,12 +33,17 @@ public class User {
     @Column(name = "user_email")
     private String email; // 이메일
 
-    @Column(name = "user_birth")
-    private String birth; // 생일(8자리)
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "role_name")
-    private Role role;
+    @JoinColumn(name = "status_id")
+    private Status status;
+
+    @OneToOne
+    @JoinColumn(name = "provider_id")
+    private Provider provider;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt; // 회원가입일자
@@ -35,14 +51,29 @@ public class User {
     @Column(name = "latest_login_at")
     private LocalDateTime latestLoginAt; // 마지막 접속일
 
+
+    /**
+     * Instantiates a new User.
+     *
+     * @param id            the id
+     * @param name          the name
+     * @param password      the password
+     * @param email         the email
+     * @param role          the role
+     * @param status        the status
+     * @param provider      the provider
+     * @param createdAt     the created at
+     * @param latestLoginAt the latest login at
+     */
     @Builder
-    public User(String id, String name, String password, String email, String birth, Role role, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
+    public User(String id, String name, String password, String email, Role role, Status status, Provider provider, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.email = email;
-        this.birth = birth;
         this.role = role;
+        this.status = status;
+        this.provider = provider;
         this.createdAt = createdAt;
         this.latestLoginAt = latestLoginAt;
     }
