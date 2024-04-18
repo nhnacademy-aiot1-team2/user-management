@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 사용자 관리를 위한 REST API 컨트롤러
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 @RestController
 @RequestMapping("/api/user")

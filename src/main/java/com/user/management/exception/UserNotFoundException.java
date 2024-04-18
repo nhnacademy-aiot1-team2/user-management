@@ -2,7 +2,9 @@ package com.user.management.exception;
 
 /**
  * 사용자를 찾을 수 없는 경우에 대한 예외 처리 클래스입니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String id) {

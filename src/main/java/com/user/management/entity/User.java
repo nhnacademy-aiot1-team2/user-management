@@ -8,6 +8,12 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * user entity class
+ *
+ * @author parksangwon
+ * @version 1.0.0
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,9 +52,20 @@ public class User {
     private LocalDateTime latestLoginAt; // 마지막 접속일
 
 
-
+    /**
+     * Instantiates a new User.
+     *
+     * @param id            the id
+     * @param name          the name
+     * @param password      the password
+     * @param email         the email
+     * @param role          the role
+     * @param status        the status
+     * @param provider      the provider
+     * @param createdAt     the created at
+     * @param latestLoginAt the latest login at
+     */
     @Builder
-
     public User(String id, String name, String password, String email, Role role, Status status, Provider provider, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.id = id;
         this.name = name;

@@ -6,6 +6,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * 일반적인 설정을 정의하기 위한 class
+ *
+ * @author parksangwon
+ * @version 1.0.0
+ */
 @Configuration
 @EnableWebSecurity
 public class Config {

@@ -10,7 +10,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Spring Security 설정에 대한 클래스입니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 @Configuration
 @EnableWebSecurity

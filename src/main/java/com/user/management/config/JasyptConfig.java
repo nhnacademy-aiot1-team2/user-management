@@ -11,7 +11,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Jasypt 암호화 설정을 위한 Configuration 클래스입니다.
  * application.properties 에 저장된 DB.username, DB.password, DB.url 을 암호화 합니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 @Configuration
 @EnableEncryptableProperties
