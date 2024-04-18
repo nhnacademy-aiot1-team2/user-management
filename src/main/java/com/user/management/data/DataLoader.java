@@ -1,12 +1,12 @@
 package com.user.management.data;
 
 import com.user.management.entity.Provider;
-import com.user.management.entity.Status;
 import com.user.management.entity.Role;
+import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.repository.ProviderRepository;
-import com.user.management.repository.StatusRepository;
 import com.user.management.repository.RoleRepository;
+import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 /**
  * 데이터 로더 클래스, 서버 시작 시 초기 데이터를 주입합니다.
  * {@link CommandLineRunner} 인터페이스를 구현하여 파라미터로 전달된 문자열 배열을 처리하는 run 메소드를 오버라이드합니다.
+ *
+ * @author parksangwon
  */
 @Component
 @RequiredArgsConstructor

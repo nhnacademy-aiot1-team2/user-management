@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 
 /**
  * 모든 컨트롤러에서 발생하는 RuntimeException을 처리합니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 @ControllerAdvice
 @RestController
@@ -43,7 +45,6 @@ public class GlobalExceptionHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(errorDetails.toString(4));
     }
-
 
 
 }

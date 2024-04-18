@@ -7,6 +7,9 @@ import java.util.Optional;
 
 /**
  * Provider 엔티티 인스턴스를 관리하기 위한 레포지토리입니다.
+ *
+ * @author parksangwon
+ * @version 1.0.0
  */
 public interface ProviderRepository extends JpaRepository<Provider, String> {
 

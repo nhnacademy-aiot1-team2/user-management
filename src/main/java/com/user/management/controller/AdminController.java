@@ -15,6 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 관리자 관련 API controller
+ *
+ * @author parksangwon
+ * @version 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/admin")
 @RequiredArgsConstructor
