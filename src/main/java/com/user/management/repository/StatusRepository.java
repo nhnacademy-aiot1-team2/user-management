@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * 상태(Status)에 대한 데이터를 접근하는 레포지터리입니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 public interface StatusRepository extends JpaRepository<Status, Long> {
 

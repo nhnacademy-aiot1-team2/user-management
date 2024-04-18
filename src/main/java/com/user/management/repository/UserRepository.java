@@ -13,7 +13,9 @@ import java.util.Optional;
 
 /**
  * 사용자(User) 정보를 관리하는 레포지터리 인터페이스입니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 public interface UserRepository extends JpaRepository<User, String> {
 

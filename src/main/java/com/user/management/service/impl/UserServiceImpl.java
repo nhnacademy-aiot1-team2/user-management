@@ -23,7 +23,9 @@ import java.util.Objects;
 /**
  * 사용자 관련 서비스를 구현한 클래스입니다.
  * UserService 인터페이스로 구현되었습니다.
- * Author : jjunho50
+ *
+ * @author jjunho50
+ * @version 1.0.0
  */
 @Service
 @RequiredArgsConstructor

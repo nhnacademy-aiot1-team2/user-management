@@ -16,6 +16,7 @@ import springfox.documentation.spring.web.plugins.Docket;
  * Swagger를 사용하여 API의 문서화를 쉽게 진행하고 API를 시각적으로 확인할 수 있습니다.
  *
  * @author jjunho50
+ * @version 1.0.0
  * @Configuration : Configuration 클래스임을 명시
  * @EnableWebMvc : Spring MVC를 활성화하여 컨트롤러를 통해 웹 기능을 수행
  */
