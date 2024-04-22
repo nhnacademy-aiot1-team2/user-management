@@ -87,4 +87,6 @@ public interface UserService {
      */
     void deleteUser(DeleteUserRequest deleteUserRequest);
 
+    RoleResponse getRoleByUserId(String id);
+
 }

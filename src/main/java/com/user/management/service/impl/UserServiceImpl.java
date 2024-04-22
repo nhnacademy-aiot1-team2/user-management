@@ -1,6 +1,7 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.*;
+import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
@@ -234,6 +235,12 @@ public class UserServiceImpl implements UserService {
             User user = existedUser.toBuilder().status(inActiveStatus).build();
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public RoleResponse getRoleByUserId(String id) {
+        Role role = userRepository.getRoleByUserId(id);
+        return new RoleResponse(role.getId(), role.getName());
     }
 }
 
