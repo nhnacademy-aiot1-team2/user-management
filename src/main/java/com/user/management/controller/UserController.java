@@ -80,6 +80,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * userId로 roleId 받아오기
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
     @GetMapping("/role")
     public ResponseEntity<RoleResponse> getRoleId(@RequestHeader(value = "X-USER-ID") String id) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getRoleByUserId(id));

@@ -237,6 +237,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * userId로 Role 반환
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
     @Override
     public RoleResponse getRoleByUserId(String id) {
         Role role = userRepository.getRoleByUserId(id);
