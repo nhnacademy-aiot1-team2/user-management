@@ -87,4 +87,12 @@ public interface UserService {
      */
     void deleteUser(DeleteUserRequest deleteUserRequest);
 
+    /**
+     * userId로 Role 반환
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
+    RoleResponse getRoleByUserId(String id);
+
 }
