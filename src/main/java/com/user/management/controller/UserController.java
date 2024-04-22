@@ -1,9 +1,6 @@
 package com.user.management.controller;
 
-import com.user.management.dto.UserCreateRequest;
-import com.user.management.dto.UserDataResponse;
-import com.user.management.dto.UserLoginRequest;
-import com.user.management.dto.UserUpdateRequest;
+import com.user.management.dto.*;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -81,5 +78,16 @@ public class UserController {
     public ResponseEntity<Void> deactivateUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.deactivateUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * userId로 roleId 받아오기
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
+    @GetMapping("/role")
+    public ResponseEntity<RoleResponse> getRoleId(@RequestHeader(value = "X-USER-ID") String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getRoleByUserId(id));
     }
 }
