@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
      * @return 사용자 정보를 포함하는 Page<UserDataResponse> 객체
      */
     @Override
+    @Transactional(readOnly = true)
     public Page<UserDataResponse> getAllUsers(Pageable pageable) {
         Page<UserDataResponse> allUserData = userRepository.getAllUserData(pageable);
         if (Objects.isNull(allUserData) || allUserData.getContent().isEmpty()) {
@@ -62,6 +64,7 @@ public class UserServiceImpl implements UserService {
      * @throws RuntimeException 해당 statusId가 존재하지 않을 경우 발생.
      */
     @Override
+    @Transactional(readOnly = true)
     public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
         if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
         return userRepository.getUsersFilteredByStatusId(pageable, statusId);
@@ -77,6 +80,7 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDataResponse getUserById(String id) {
         if (id == null) throw new UserHeaderNotFoundException();
         return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -93,6 +97,7 @@ public class UserServiceImpl implements UserService {
      * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
@@ -116,6 +121,7 @@ public class UserServiceImpl implements UserService {
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
+    @Transactional
     public void createUser(UserCreateRequest userCreateRequest) {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
@@ -135,6 +141,7 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
      */
     @Override
+    @Transactional
     public void permitUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -148,6 +155,7 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
      */
     @Override
+    @Transactional
     public void promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -165,6 +173,7 @@ public class UserServiceImpl implements UserService {
      * @throws AlreadyExistEmailException  이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
+    @Transactional
     public void updateUser(UserUpdateRequest userUpdateRequest, String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -186,6 +195,7 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
+    @Transactional
     public void deactivateUser(String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -202,6 +212,7 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
      */
     @Override
+    @Transactional
     public void deleteUser(DeleteUserRequest deleteUserRequest) {
         String userId = deleteUserRequest.getId();
         if (!userRepository.existsById(userId)) throw new RuntimeException("이미 존재하지 않는 userId 입니다.");
@@ -213,6 +224,7 @@ public class UserServiceImpl implements UserService {
      * 매일 0시에 따라 사용자의 최종 로그인 시간을 확인하고,
      * 마지막 로그인 시간이 한달 이상 전이면 사용자의 상태를 '휴면' 상태로 변경하는 스케줄러입니다.
      */
+    @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void updateUserInactivityStatus() {
         List<User> users = userRepository.findAll();
@@ -244,6 +256,7 @@ public class UserServiceImpl implements UserService {
      * @return RoleResponse
      */
     @Override
+    @Transactional(readOnly = true)
     public RoleResponse getRoleByUserId(String id) {
         Role role = userRepository.getRoleByUserId(id);
         return new RoleResponse(role.getId(), role.getName());

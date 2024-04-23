@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.ProviderNotFoundException;
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
      *                                       유효하지 않은 OAuth2 요청이 수신된 경우 던져집니다.
      */
     @Override
+    @Transactional(readOnly = true)
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String providerId = oAuth2User.getAttribute("sub"); // GoogleId
