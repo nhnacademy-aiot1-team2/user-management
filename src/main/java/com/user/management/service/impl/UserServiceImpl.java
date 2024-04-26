@@ -5,12 +5,16 @@ import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
+import com.user.management.page.RestPage;
 import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,13 +50,20 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<UserDataResponse> getAllUsers(Pageable pageable) {
+    @Cacheable(
+            value = "getUsers",
+            key = "#pageable.pageSize.toString().concat('-').concat(#pageable.pageNumber)",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RestPage<UserDataResponse> getAllUsers(Pageable pageable) {
+
         Page<UserDataResponse> allUserData = userRepository.getAllUserData(pageable);
         if (Objects.isNull(allUserData) || allUserData.getContent().isEmpty()) {
             throw new UserNotFoundException("user list empty");
         }
 
-        return allUserData;
+        return new RestPage<>(allUserData);
     }
 
     /**
@@ -65,9 +76,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
+    @Cacheable(
+            value = "getUsers",
+            key = "#statusId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
         if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
-        return userRepository.getUsersFilteredByStatusId(pageable, statusId);
+        return new RestPage<>(userRepository.getUsersFilteredByStatusId(pageable, statusId));
     }
 
 
@@ -81,9 +98,34 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUser",
+            key = "#id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
     public UserDataResponse getUserById(String id) {
         if (id == null) throw new UserHeaderNotFoundException();
         return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    /**
+     * userId로 Role 반환
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getRole",
+            key = "#id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RoleResponse getRoleByUserId(String id) {
+        Role role = userRepository.getRoleByUserId(id);
+        return new RoleResponse(role.getId(), role.getName());
     }
 
     /**
@@ -98,6 +140,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUserLogin",
+            key = "#userLoginRequest.id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
     public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
@@ -122,6 +170,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true)
+            }
+    )
     public void createUser(UserCreateRequest userCreateRequest) {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
@@ -142,6 +195,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void permitUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -156,6 +216,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getRole", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -174,6 +242,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#userId", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#userId", cacheManager = "cacheManager")
+            }
+    )
     public void updateUser(UserUpdateRequest userUpdateRequest, String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -196,6 +271,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager")
+            }
+    )
     public void deactivateUser(String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -213,12 +293,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#deleteUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void deleteUser(DeleteUserRequest deleteUserRequest) {
         String userId = deleteUserRequest.getId();
         if (!userRepository.existsById(userId)) throw new RuntimeException("이미 존재하지 않는 userId 입니다.");
         userRepository.deleteById(userId);
     }
-
 
     /**
      * 매일 0시에 따라 사용자의 최종 로그인 시간을 확인하고,
@@ -247,19 +332,6 @@ public class UserServiceImpl implements UserService {
             User user = existedUser.toBuilder().status(inActiveStatus).build();
             userRepository.save(user);
         }
-    }
-
-    /**
-     * userId로 Role 반환
-     *
-     * @param id userId
-     * @return RoleResponse
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public RoleResponse getRoleByUserId(String id) {
-        Role role = userRepository.getRoleByUserId(id);
-        return new RoleResponse(role.getId(), role.getName());
     }
 }
 
