@@ -1,6 +1,5 @@
 GET http://localhost:8200/api/user/myPage
-X-USER-ID:test2
-Accept: application/json
+X-USER-ID:test1
 
 ###
 
@@ -8,8 +7,8 @@ POST http://localhost:8200/api/user/login
 Content-Type: application/json
 
 {
-  "id": "zxcv",
-  "password": "zxcv"
+  "id": "admin",
+  "password": "1234"
 }
 
 ###

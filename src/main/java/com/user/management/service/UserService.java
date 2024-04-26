@@ -1,6 +1,7 @@
 package com.user.management.service;
 
 import com.user.management.dto.*;
+import com.user.management.page.RestPage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,7 +18,7 @@ public interface UserService {
      * @param pageable the pageable
      * @return the all users
      */
-    Page<UserDataResponse> getAllUsers(Pageable pageable);
+    RestPage<UserDataResponse> getAllUsers(Pageable pageable);
 
     /**
      * Gets filtered users by status.
