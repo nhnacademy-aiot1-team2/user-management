@@ -35,13 +35,13 @@ public class AdminController {
      * @return 사용자 정보의 부분 리스트를 담은 ResponseEntity를 돌려줍니다.
      */
     @GetMapping("/userList")
-    public ResponseEntity<List<UserDataResponse>> findAllUsers(
+    public ResponseEntity<Page<UserDataResponse>> findAllUsers(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getAllUsers(pageable);
 
-        return ResponseEntity.ok().body(userPage.getContent());
+        return ResponseEntity.ok().body(userPage);
     }
 
     /**
@@ -53,14 +53,14 @@ public class AdminController {
      * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
      */
     @GetMapping("/userList/sort/{statusId}")
-    public ResponseEntity<List<UserDataResponse>> findSortedUser(
+    public ResponseEntity<Page<UserDataResponse>> findSortedUser(
             @RequestHeader(value = "X-USER-ID", required = false) String adminUserId,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
             @PathVariable Long statusId) {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getFilteredUsersByStatus(statusId, pageable);
-        return ResponseEntity.ok().body(userPage.getContent());
+        return ResponseEntity.ok().body(userPage);
     }
 
     /**
