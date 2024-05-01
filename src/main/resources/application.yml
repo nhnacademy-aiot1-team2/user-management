@@ -1,0 +1,73 @@
+spring:
+  redis:
+    host: 133.186.244.96
+    password: '*N2vya7H@muDTwdNMR!'
+    database: '11'
+    port: '6379'
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-secret: ENC(4R2T+IHOwHiCCiFo1Ncg+NMRfFWUtjoOq/cRO8SLJLjWNx5dtE4MwRFEMOd+qto+cCcO5YO6IKE=)
+            redirect-uri: https://contxt.co.kr/login/oauth2/code/github
+            client-id: ENC(CdolCNhFbiYce45++r5JJq4/Pj9jv8TRbdhMNfLlfB4=)
+          google:
+            redirect-uri: https://contxt.co.kr/login/oauth2/code/google
+            client-id: ENC(EQt097yLzcALyT0esxzGCSexaFaBH3sfbLosCyheLEsIOZYY4jAKHRyb/0/D0ruM7hrF3au9b6t2bZ8AV0o2JXXTivRHQHTMJCwwgeoXux2hzuOTmOKDsQ==)
+            client-secret: ENC(eVJcjPepxPjyFkwligH0Onzpuz3OFPPjK8ZdqgQeD4gLlf1TmrQuMKGFXPuzwMv5)
+            scope: profile, email
+  datasource:
+    dbcp2:
+      max-idle: '2'
+      test-on-borrow: 'true'
+      max-total: '2'
+      validation-query: select 1
+      url: jdbc:mysql://133.186.244.96:3306/nhn_academy_35
+      initial-size: '2'
+      max-wait-millis: '2000'
+      min-idle: '2'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: ENC(WpvQvtj44woYcum6Klx43zFl6AgLFuz2CnNpzdthuFw=)
+    username: ENC(qmQi9eTKcsooXlSsDPyEbh8Mi/SK6Vw8)
+    url: ENC(G7OZPpSx3fp1/0Q/BevBQNmCEJbH5VPgVyKUbFJLQqU2RwIeY6C66GysYHxLOYmJe/3FViKCDo0OzukFgB4wqGS/MpSt/kP78FhYsK6Ngjai9lccOyS7OsJobo6AKUKs5QcxuIh6yZ5IMlJEwpA1tw==)
+  jpa:
+    hibernate:
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        format_sql: 'true'
+        use_sql_comments: 'true'
+        show_sql: 'true'
+    database: MYSQL
+    open-in-view: 'false'
+  cache:
+    type: redis
+  application:
+    name: user-management
+  profiles:
+    active: prod
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
+eureka:
+  client:
+    fetch-registry: 'true'
+    register-with-eureka: 'true'
+server:
+  port: '8200'
+  tomcat:
+    connection-timeout: '20000'
+  servlet:
+    encoding:
+      force: 'true'
+      charset: UTF-8
+jasypt:
+  encryptor:
+    password: TxtPassword

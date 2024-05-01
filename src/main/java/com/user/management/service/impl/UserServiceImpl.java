@@ -1,20 +1,26 @@
 package com.user.management.service.impl;
 
 import com.user.management.dto.*;
+import com.user.management.entity.Role;
 import com.user.management.entity.Status;
 import com.user.management.entity.User;
 import com.user.management.exception.*;
+import com.user.management.page.RestPage;
 import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,13 +49,21 @@ public class UserServiceImpl implements UserService {
      * @return 사용자 정보를 포함하는 Page<UserDataResponse> 객체
      */
     @Override
-    public Page<UserDataResponse> getAllUsers(Pageable pageable) {
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUsers",
+            key = "#pageable.pageSize.toString().concat('-').concat(#pageable.pageNumber)",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RestPage<UserDataResponse> getAllUsers(Pageable pageable) {
+
         Page<UserDataResponse> allUserData = userRepository.getAllUserData(pageable);
         if (Objects.isNull(allUserData) || allUserData.getContent().isEmpty()) {
             throw new UserNotFoundException("user list empty");
         }
 
-        return allUserData;
+        return new RestPage<>(allUserData);
     }
 
     /**
@@ -61,9 +75,16 @@ public class UserServiceImpl implements UserService {
      * @throws RuntimeException 해당 statusId가 존재하지 않을 경우 발생.
      */
     @Override
-    public Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUsers",
+            key = "#statusId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
         if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
-        return userRepository.getUsersFilteredByStatusId(pageable, statusId);
+        return new RestPage<>(userRepository.getUsersFilteredByStatusId(pageable, statusId));
     }
 
 
@@ -76,9 +97,35 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUser",
+            key = "#id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
     public UserDataResponse getUserById(String id) {
         if (id == null) throw new UserHeaderNotFoundException();
         return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    /**
+     * userId로 Role 반환
+     *
+     * @param id userId
+     * @return RoleResponse
+     */
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getRole",
+            key = "#id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
+    public RoleResponse getRoleByUserId(String id) {
+        Role role = userRepository.getRoleByUserId(id);
+        return new RoleResponse(role.getId(), role.getName());
     }
 
     /**
@@ -92,6 +139,13 @@ public class UserServiceImpl implements UserService {
      * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUserLogin",
+            key = "#userLoginRequest.id",
+            cacheManager = "cacheManager",
+            unless = "#result == null"
+    )
     public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
         User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
@@ -115,6 +169,12 @@ public class UserServiceImpl implements UserService {
      * @throws AlreadyExistEmailException 이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true)
+            }
+    )
     public void createUser(UserCreateRequest userCreateRequest) {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
@@ -134,6 +194,14 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void permitUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -147,6 +215,15 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 해당 사용자가 존재하지 않을 경우 발생.
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getRole", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -164,6 +241,14 @@ public class UserServiceImpl implements UserService {
      * @throws AlreadyExistEmailException  이미 등록된 email 일 경우 발생하는 예외
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUser", key = "#userId", cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#userId", cacheManager = "cacheManager")
+            }
+    )
     public void updateUser(UserUpdateRequest userUpdateRequest, String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -185,6 +270,12 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException       사용자를 찾을 수 없을 때 발생하는 예외
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager")
+            }
+    )
     public void deactivateUser(String userId) {
         if (userId == null) throw new UserHeaderNotFoundException();
 
@@ -201,17 +292,24 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException 사용자의 userId가 존재하지 않을 경우 이 예외를 발생시킵니다.
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
+                    @CacheEvict(value = "getUserLogin", key = "#deleteUserRequest.id", cacheManager = "cacheManager")
+            }
+    )
     public void deleteUser(DeleteUserRequest deleteUserRequest) {
         String userId = deleteUserRequest.getId();
         if (!userRepository.existsById(userId)) throw new RuntimeException("이미 존재하지 않는 userId 입니다.");
         userRepository.deleteById(userId);
     }
 
-
     /**
      * 매일 0시에 따라 사용자의 최종 로그인 시간을 확인하고,
      * 마지막 로그인 시간이 한달 이상 전이면 사용자의 상태를 '휴면' 상태로 변경하는 스케줄러입니다.
      */
+    @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void updateUserInactivityStatus() {
         List<User> users = userRepository.findAll();
