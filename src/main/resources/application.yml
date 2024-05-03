@@ -14,8 +14,8 @@ spring:
             client-id: ENC(CdolCNhFbiYce45++r5JJq4/Pj9jv8TRbdhMNfLlfB4=)
           google:
             redirect-uri: https://contxt.co.kr/login/oauth2/code/google
-            client-id: ENC(EQt097yLzcALyT0esxzGCSexaFaBH3sfbLosCyheLEsIOZYY4jAKHRyb/0/D0ruM7hrF3au9b6t2bZ8AV0o2JXXTivRHQHTMJCwwgeoXux2hzuOTmOKDsQ==)
-            client-secret: ENC(eVJcjPepxPjyFkwligH0Onzpuz3OFPPjK8ZdqgQeD4gLlf1TmrQuMKGFXPuzwMv5)
+            client-id: ENC(Q/bpGndqp7nR//xD6t/C4dfFnnQYUDjVNCxz5jrxEmxiMO7Bb5pkcv60v7AS6kGK6hC4FYKbW06fEKVIaqSRd3qVg9sAiou25W72itbDI+ZyGQjRJCUJKg==)
+            client-secret: ENC(t0NV6jS9CT+O1vJ8qhEoeRh+ZpBTrawAcz29VFB6Sx3aGnw3vWgVzEpH5Fp53D7j)
             scope: profile, email
   datasource:
     dbcp2:
