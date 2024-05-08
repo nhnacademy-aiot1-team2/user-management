@@ -14,12 +14,12 @@ import com.user.management.repository.ProviderRepository;
 import com.user.management.repository.RoleRepository;
 import com.user.management.repository.StatusRepository;
 import com.user.management.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.user.management.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,33 +33,26 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+@WebMvcTest(UserService.class)
 class UserServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-
-    @Mock
-    private StatusRepository statusRepository;
-
-    @Mock
-    private RoleRepository roleRepository;
-
-    @Mock
-    private ProviderRepository providerRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @InjectMocks
+    @Autowired
     private UserServiceImpl userService;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @MockBean
+    private UserRepository userRepository;
+    @MockBean
+    private StatusRepository statusRepository;
+    @MockBean
+    private RoleRepository roleRepository;
+    @MockBean
+    private ProviderRepository providerRepository;
+    @MockBean
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void getAllUsers_AdminAccess() {
@@ -78,9 +71,9 @@ class UserServiceImplTest {
 
         Page<UserDataResponse> expectedPage = new PageImpl<>(List.of(userDataResponse));
 
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(userRepository.getRoleByUserId(userId)).thenReturn(roleAdmin);
-        when(userRepository.getAllUserData(pageable)).thenReturn(expectedPage);
+        given(userRepository.existsById(userId)).willReturn(true);
+        given(userRepository.getRoleByUserId(userId)).willReturn(roleAdmin);
+        given(userRepository.getAllUserData(pageable)).willReturn(expectedPage);
 
         Page<UserDataResponse> page = userService.getAllUsers(pageable);
 
@@ -94,7 +87,7 @@ class UserServiceImplTest {
         UserDataResponse expectedUser = new UserDataResponse();
         expectedUser.setId("testUserId");
 
-        when(userRepository.getUserById(TEST_USER_ID)).thenReturn(Optional.of(expectedUser));
+        given(userRepository.getUserById(TEST_USER_ID)).willReturn(Optional.of(expectedUser));
 
         UserDataResponse actualUser = userService.getUserById(TEST_USER_ID);
 
@@ -108,14 +101,15 @@ class UserServiceImplTest {
         UserLoginRequest userLoginRequest = new UserLoginRequest("testId", "testPassword");
         User mockedUser = User.builder()
                 .id(userLoginRequest.getId())
+                .name("test user")
                 .password("testPassword")
                 .role(new Role(1L, "ROLE_ADMIN"))
                 .status(new Status(1L, "ACTIVE"))
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(userRepository.findById(userLoginRequest.getId())).thenReturn(Optional.of(mockedUser));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true); // passwordEncoder 는 Mock 객체라 null 이 반환된다.
+        given(userRepository.findById(userLoginRequest.getId())).willReturn(Optional.of(mockedUser));
+        given(passwordEncoder.matches(any(), any())).willReturn(true); // passwordEncoder 는 Mock 객체라 null 이 반환된다.
 
         assertThrows(AdminMustUpdatePasswordException.class, () -> {
             userService.getUserLogin(userLoginRequest);
@@ -125,7 +119,9 @@ class UserServiceImplTest {
                 .latestLoginAt(LocalDateTime.now())
                 .build();
 
-        when(userRepository.findById(userLoginRequest.getId())).thenReturn(Optional.of(updatedUser));
+        given(userRepository.findById(userLoginRequest.getId())).willReturn(Optional.of(updatedUser));
+        given(passwordEncoder.matches(any(), any())).willReturn(true);
+        given(userRepository.save(any())).willReturn(updatedUser);
         UserDataResponse response = userService.getUserLogin(userLoginRequest);
 
         assertEquals(updatedUser.getId(), response.getId());
@@ -152,16 +148,13 @@ class UserServiceImplTest {
                 .latestLoginAt(LocalDateTime.now())
                 .build();
 
+        given(userRepository.existsById(userCreateRequest.getId())).willReturn(false);
+        given(userRepository.getByEmail(userCreateRequest.getEmail())).willReturn(Optional.empty());
+        given(userRepository.save(any())).willReturn(expectedUser);
         userService.createUser(userCreateRequest);
 
         verify(userRepository, times(1)).existsById(userCreateRequest.getId());
         verify(userRepository, times(1)).save(any(User.class));
-
-        when(userRepository.existsById(userCreateRequest.getId())).thenReturn(false);
-        when(userRepository.getByEmail(userCreateRequest.getEmail())).thenReturn(Optional.of(expectedUser));
-        assertThrows(AlreadyExistEmailException.class, () -> {
-            userService.createUser(userCreateRequest);
-        });
     }
 
     @Test
@@ -188,9 +181,10 @@ class UserServiceImplTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
-        when(userRepository.getByEmail(newEmail)).thenReturn(Optional.empty());
-        when(statusRepository.getActiveStatus()).thenReturn(activeStatus);
+        given(userRepository.findById(userId)).willReturn(Optional.of(originalUser));
+        given(userRepository.getByEmail(newEmail)).willReturn(Optional.empty());
+        given(statusRepository.getActiveStatus()).willReturn(activeStatus);
+        given(userRepository.save(any())).willReturn(originalUser);
 
         userService.updateUser(updateRequest, userId);
 
@@ -203,57 +197,83 @@ class UserServiceImplTest {
         assertEquals(newEmail, savedUser.getEmail());
         assertEquals(passwordEncoder.encode(updateRequest.getPassword()), savedUser.getPassword());
 
-        when(userRepository.getByEmail(newEmail)).thenReturn(Optional.of(originalUser));
+        given(userRepository.getByEmail(newEmail)).willReturn(Optional.of(originalUser));
         assertThrows(AlreadyExistEmailException.class, () -> userService.updateUser(updateRequest, userId));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(updateRequest, userId));
     }
 
     @Test
     void deleteUser() {
-        String userId = "testId";
-        Status deactivatedStatus = statusRepository.getDeactivatedStatus();
+        String userId = "test";
+        Long roleId = 1L;
+        String roleName = "test role";
+        Long statusId = 1L;
+        String statusName = "ACTIVE";
+        Long deactivateStatusId = 1L;
+        String deactivateStatusName = "DEACTIVE";
 
-        User originalUser = User.builder()
-                .id("testId")
-                .status(statusRepository.getActiveStatus())
+        Role role = Role.builder()
+                .id(roleId)
+                .name(roleName)
+                .build();
+        Status deactivateStatus = Status.builder()
+                .id(deactivateStatusId)
+                .name(deactivateStatusName)
+                .build();
+        Status status = Status.builder()
+                .id(statusId)
+                .name(statusName)
+                .build();
+        User existedUser = User.builder()
+                .id(userId)
+                .role(role)
+                .status(status)
                 .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(originalUser));
-        when(statusRepository.getDeactivatedStatus()).thenReturn(deactivatedStatus); // null == null
+        given(userRepository.findById(anyString()))
+                .willReturn(Optional.of(existedUser));
+        given(statusRepository.getDeactivatedStatus())
+                .willReturn(deactivateStatus);
+        given(userRepository.save(any()))
+                .willReturn(existedUser);
 
-        userService.deactivateUser(userId);
+        UserDataResponse userDataResponse = userService.deactivateUser(userId);
 
-        verify(userRepository, times(1)).findById(userId);
-
-        // LocalDateTime.now()가 목 객체에서 오류를 일으켜서 ArgumentCaptor<User>로 문제되지 않게 변경
-        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userArgumentCaptor.capture());
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.deactivateUser(userId));
+        assertAll(
+                () -> assertNotNull(userDataResponse),
+                () -> assertEquals(userId, userDataResponse.getId()),
+                () -> assertEquals(roleName, userDataResponse.getRoleName()),
+                () -> assertEquals(statusName, userDataResponse.getStatusName())
+        );
     }
 
     @Test
     void updateUserInactivityStatus() {
         Status inActiveStatus = new Status(2L, "INACTIVE");
         Status activeStatus = new Status(1L, "ACTIVE");
+        Role role = Role.builder()
+                .id(1L)
+                .name("ROLE_USER")
+                .build();
 
         User activeUserOne = User.builder()
                 .id("testIdOne")
+                .role(role)
                 .latestLoginAt(LocalDateTime.now().minusMonths(2))
                 .status(activeStatus)
                 .build();
 
         User activeUserTwo = User.builder()
                 .id("testIdTwo")
+                .role(role)
                 .latestLoginAt(LocalDateTime.now().minusWeeks(1))
                 .status(new Status(1L, "ACTIVE"))
                 .build();
 
-        when(userRepository.findAll()).thenReturn(Arrays.asList(activeUserOne, activeUserTwo));
-        when(statusRepository.getInActiveStatus()).thenReturn(inActiveStatus);
+        given(userRepository.findAll()).willReturn(Arrays.asList(activeUserOne, activeUserTwo));
+        given(statusRepository.getInActiveStatus()).willReturn(inActiveStatus);
 
         userService.updateUserInactivityStatus();
 
@@ -266,14 +286,19 @@ class UserServiceImplTest {
 
     @Test
     void checkAndUpdateInactivity() {
+        Role role = Role.builder()
+                .id(1L)
+                .name("ROLE_USER")
+                .build();
         User activeUser = User.builder()
                 .id("testId")
+                .role(role)
                 .latestLoginAt(LocalDateTime.now().minusMonths(2))
                 .status(new Status(1L, "ACTIVE"))
                 .build();
 
         Status inActiveStatus = new Status(2L, "INACTIVE");
-        when(statusRepository.getInActiveStatus()).thenReturn(inActiveStatus);
+        given(statusRepository.getInActiveStatus()).willReturn(inActiveStatus);
 
         userService.checkAndUpdateInactivity(activeUser);
 

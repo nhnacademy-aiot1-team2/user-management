@@ -50,21 +50,21 @@ public interface UserService {
      *
      * @param permitUserRequest the permit user request
      */
-    void permitUser(PermitUserRequest permitUserRequest);
+    UserDataResponse permitUser(PermitUserRequest permitUserRequest);
 
     /**
      * Promote user.
      *
      * @param permitUserRequest the permit user request
      */
-    void promoteUser(PermitUserRequest permitUserRequest);
+    UserDataResponse promoteUser(PermitUserRequest permitUserRequest);
 
     /**
      * Create user.
      *
      * @param userCreateRequest the user create request
      */
-    void createUser(UserCreateRequest userCreateRequest);
+    UserDataResponse createUser(UserCreateRequest userCreateRequest);
 
     /**
      * Update user.
@@ -72,14 +72,14 @@ public interface UserService {
      * @param userUpdateRequest the user update request
      * @param userId            the user id
      */
-    void updateUser(UserUpdateRequest userUpdateRequest, String userId);
+    UserDataResponse updateUser(UserUpdateRequest userUpdateRequest, String userId);
 
     /**
      * Deactivate user.
      *
      * @param userId the user id
      */
-    void deactivateUser(String userId);
+    UserDataResponse deactivateUser(String userId);
 
     /**
      * Delete user.

@@ -1,6 +1,7 @@
 package com.user.management.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
  * @version 1.0.0
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDataResponse {
