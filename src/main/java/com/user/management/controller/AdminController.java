@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -71,7 +72,7 @@ public class AdminController {
      */
     @PostMapping("/promotion")
     public ResponseEntity<Void> promoteUserToAdmin(
-            @RequestBody PermitUserRequest permitUserRequest) {
+            @RequestBody @Valid PermitUserRequest permitUserRequest) {
         userService.promoteUser(permitUserRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -83,14 +84,14 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/permit")
-    public ResponseEntity<Void> permitUser(@RequestBody List<PermitUserRequest> permitUserRequestList) {
+    public ResponseEntity<Void> permitUser(@RequestBody @Valid List<PermitUserRequest> permitUserRequestList) {
         permitUserRequestList.parallelStream().forEach(userService::permitUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
     @PostMapping("/reject/delete")
-    public ResponseEntity<Void> rejectDeleteUser(@RequestBody List<DeleteUserRequest> deleteUserRequestList) {
+    public ResponseEntity<Void> rejectDeleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
         deleteUserRequestList.stream()
                 .map(request -> new PermitUserRequest(request.getId()))
                 .forEach(userService::permitUser);
@@ -104,7 +105,7 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUser(@RequestBody List<DeleteUserRequest> deleteUserRequestList) {
+    public ResponseEntity<Void> deleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
         deleteUserRequestList.parallelStream().forEach(userService::deleteUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
