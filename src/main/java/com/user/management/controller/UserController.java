@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * 사용자 관리를 위한 REST API 컨트롤러
  *
@@ -38,7 +40,7 @@ public class UserController {
      * @return 상태 코드 201 (생성됨)
      */
     @PostMapping("/register")
-    public ResponseEntity<Void> createUser(@RequestBody UserCreateRequest userCreateRequest) {
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         userService.createUser(userCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -50,7 +52,7 @@ public class UserController {
      * @return 로그인한 사용자 정보
      */
     @PostMapping("/login")
-    public ResponseEntity<UserDataResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
+    public ResponseEntity<UserDataResponse> loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) {
         return ResponseEntity.ok().body(userService.getUserLogin(userLoginRequest));
     }
 
@@ -62,7 +64,7 @@ public class UserController {
      * @return 상태 코드 204 (내용 없음)
      */
     @PutMapping("/update")
-    public ResponseEntity<Void> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
+    public ResponseEntity<Void> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.updateUser(userUpdateRequest, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
