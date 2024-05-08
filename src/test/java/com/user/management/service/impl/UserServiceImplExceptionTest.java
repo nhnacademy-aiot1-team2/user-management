@@ -95,9 +95,8 @@ class UserServiceImplExceptionTest {
         UserCreateRequest userCreateRequest =
                 new UserCreateRequest("testId", "testName", "testPassword", "test@gmail.com");
 
-        userService.createUser(userCreateRequest);
-
         when(userRepository.existsById(userCreateRequest.getId())).thenReturn(true);
+
         assertThrows(UserAlreadyExistException.class, () -> {
             userService.createUser(userCreateRequest);
         });
