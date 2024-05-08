@@ -13,6 +13,7 @@ import com.user.management.repository.UserRepository;
 import com.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
@@ -53,11 +54,9 @@ public class UserServiceImpl implements UserService {
     @Cacheable(
             value = "getUsers",
             key = "#pageable.pageSize.toString().concat('-').concat(#pageable.pageNumber)",
-            cacheManager = "cacheManager",
             unless = "#result == null"
     )
     public RestPage<UserDataResponse> getAllUsers(Pageable pageable) {
-
         Page<UserDataResponse> allUserData = userRepository.getAllUserData(pageable);
         if (Objects.isNull(allUserData) || allUserData.getContent().isEmpty()) {
             throw new UserNotFoundException("user list empty");
@@ -79,11 +78,12 @@ public class UserServiceImpl implements UserService {
     @Cacheable(
             value = "getUsers",
             key = "#statusId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
-            cacheManager = "cacheManager",
             unless = "#result == null"
     )
     public RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
-        if (!statusRepository.existsById(statusId)) throw new RuntimeException("존재하지 않는 Status Id 입니다.");
+        if (!statusRepository.existsById(statusId))
+            throw new StatusNotFoundException("존재하지 않는 Status Id 입니다.");
+
         return new RestPage<>(userRepository.getUsersFilteredByStatusId(pageable, statusId));
     }
 
@@ -101,12 +101,14 @@ public class UserServiceImpl implements UserService {
     @Cacheable(
             value = "getUser",
             key = "#id",
-            cacheManager = "cacheManager",
             unless = "#result == null"
     )
     public UserDataResponse getUserById(String id) {
-        if (id == null) throw new UserHeaderNotFoundException();
-        return userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        if (id == null)
+            throw new UserHeaderNotFoundException();
+
+        return userRepository.getUserById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     /**
@@ -120,11 +122,11 @@ public class UserServiceImpl implements UserService {
     @Cacheable(
             value = "getRole",
             key = "#id",
-            cacheManager = "cacheManager",
             unless = "#result == null"
     )
     public RoleResponse getRoleByUserId(String id) {
         Role role = userRepository.getRoleByUserId(id);
+
         return new RoleResponse(role.getId(), role.getName());
     }
 
@@ -139,15 +141,10 @@ public class UserServiceImpl implements UserService {
      * @throws AdminMustUpdatePasswordException 어드민은 첫 로그인 시, 초기 세팅 된 비밀번호를 반드시 변경해야 합니다.
      */
     @Override
-    @Transactional(readOnly = true)
-    @Cacheable(
-            value = "getUserLogin",
-            key = "#userLoginRequest.id",
-            cacheManager = "cacheManager",
-            unless = "#result == null"
-    )
+    @Transactional
     public UserDataResponse getUserLogin(UserLoginRequest userLoginRequest) {
-        User user = userRepository.findById(userLoginRequest.getId()).orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
+        User user = userRepository.findById(userLoginRequest.getId())
+                .orElseThrow(() -> new UserNotFoundException(userLoginRequest.getId()));
 
         if (user.getRole().getId() == 1L && user.getLatestLoginAt() == null)
             throw new AdminMustUpdatePasswordException();
@@ -156,7 +153,9 @@ public class UserServiceImpl implements UserService {
             throw new InvalidPasswordException();
         }
 
-        return new UserDataResponse(user.getId(), user.getName(), user.getEmail(), user.getRole().getName(), user.getStatus().getName(), user.getPassword());
+
+        return userRepository.save(user.toBuilder().latestLoginAt(LocalDateTime.now()).build())
+                .toEntity();
     }
 
 
@@ -172,19 +171,36 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true)
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    )
             }
     )
-    public void createUser(UserCreateRequest userCreateRequest) {
+    public UserDataResponse createUser(UserCreateRequest userCreateRequest) {
         String userId = userCreateRequest.getId();
         String userEmail = userCreateRequest.getEmail();
 
-        if (userRepository.existsById(userId)) throw new UserAlreadyExistException(userId);
-        if (userRepository.getByEmail(userEmail).isPresent()) throw new AlreadyExistEmailException(userEmail);
+        if (userRepository.existsById(userId))
+            throw new UserAlreadyExistException(userId);
 
-        User user = User.builder().id(userCreateRequest.getId()).name(userCreateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userCreateRequest.getPassword())).role(roleRepository.getUserRole()).status(statusRepository.getPendingStatus()).createdAt(LocalDateTime.now()).latestLoginAt(LocalDateTime.now()).provider(providerRepository.getDefaultProvider()).build();
-        userRepository.save(user);
+        if (userRepository.getByEmail(userEmail).isPresent())
+            throw new AlreadyExistEmailException(userEmail);
 
+        User user = User.builder()
+                .id(userCreateRequest.getId())
+                .name(userCreateRequest.getName())
+                .email(userEmail)
+                .password(passwordEncoder.encode(userCreateRequest.getPassword()))
+                .role(roleRepository.getUserRole())
+                .status(statusRepository.getPendingStatus())
+                .createdAt(LocalDateTime.now())
+                .latestLoginAt(LocalDateTime.now())
+                .provider(providerRepository.getDefaultProvider())
+                .build();
+
+        return userRepository.save(user)
+                .toEntity();
     }
 
     /**
@@ -197,15 +213,29 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true,
+                            cacheManager = "cacheManager"
+                    ),
+            },
+            put = {
+                    @CachePut(
+                            value = "getUser",
+                            key = "#permitUserRequest.getId()",
+                            unless = "#result == null"
+                    )
             }
     )
-    public void permitUser(PermitUserRequest permitUserRequest) {
+    public UserDataResponse permitUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
-        User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        userRepository.save(pendingUser.toBuilder().status(statusRepository.getActiveStatus()).latestLoginAt(LocalDateTime.now()).build());
+        User pendingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return userRepository.save(pendingUser.toBuilder()
+                        .status(statusRepository.getActiveStatus())
+                        .build())
+                .toEntity();
     }
 
     /**
@@ -218,16 +248,31 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUser", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUserLogin", key = "#permitUserRequest.id", cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getRole", key = "#permitUserRequest.id", cacheManager = "cacheManager")
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "getRole",
+                            key = "#permitUserRequest.getId()"
+                    )
+            },
+            put = {
+                    @CachePut(
+                            value = "getUser",
+                            key = "#permitUserRequest.getId()",
+                            unless = "#result == null"
+                    )
             }
     )
-    public void promoteUser(PermitUserRequest permitUserRequest) {
+    public UserDataResponse promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        userRepository.save(pendingUser.toBuilder().role(roleRepository.getAdminRole()).latestLoginAt(LocalDateTime.now()).build());
+
+        return userRepository.save(pendingUser.toBuilder()
+                        .role(roleRepository.getAdminRole())
+                        .build())
+                .toEntity();
     }
 
     /**
@@ -244,21 +289,41 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUser", key = "#userId", cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUserLogin", key = "#userId", cacheManager = "cacheManager")
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    )
+            },
+            put = {
+                    @CachePut(
+                            value = "getUser",
+                            key = "#userId",
+                            unless = "#result == null"
+                    )
             }
     )
-    public void updateUser(UserUpdateRequest userUpdateRequest, String userId) {
-        if (userId == null) throw new UserHeaderNotFoundException();
+    public UserDataResponse updateUser(UserUpdateRequest userUpdateRequest, String userId) {
+        if (userId == null)
+            throw new UserHeaderNotFoundException();
 
         String userEmail = userUpdateRequest.getEmail();
-        User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        boolean emailExists = userRepository.getByEmail(userEmail).isPresent();
-        if (!existedUser.getEmail().equals(userEmail) && emailExists) throw new AlreadyExistEmailException(userEmail);
+        User existedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        boolean emailExists = userRepository.getByEmail(userEmail)
+                .isPresent();
 
-        User user = existedUser.toBuilder().name(userUpdateRequest.getName()).email(userEmail).password(passwordEncoder.encode(userUpdateRequest.getPassword())).latestLoginAt(LocalDateTime.now()).status(statusRepository.getActiveStatus()).build();
-        userRepository.save(user);
+        if (!existedUser.getEmail().equals(userEmail) && emailExists)
+            throw new AlreadyExistEmailException(userEmail);
+
+        User user = existedUser.toBuilder()
+                .name(userUpdateRequest.getName())
+                .email(userEmail)
+                .password(passwordEncoder.encode(userUpdateRequest.getPassword()))
+                .status(statusRepository.getActiveStatus())
+                .build();
+
+        return userRepository.save(user)
+                .toEntity();
     }
 
     /**
@@ -273,15 +338,31 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager")
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    )
+            },
+            put = {
+                    @CachePut(
+                            value = "getUser",
+                            key = "#userId",
+                            unless = "#result == null"
+                    )
             }
     )
-    public void deactivateUser(String userId) {
-        if (userId == null) throw new UserHeaderNotFoundException();
+    public UserDataResponse deactivateUser(String userId) {
+        if (userId == null)
+            throw new UserHeaderNotFoundException();
 
-        User existedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        User user = existedUser.toBuilder().latestLoginAt(LocalDateTime.now()).status(statusRepository.getDeactivatedStatus()).build();
-        userRepository.save(user);
+        User existedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = existedUser.toBuilder()
+                .status(statusRepository.getDeactivatedStatus())
+                .build();
+
+        return userRepository.save(user)
+                .toEntity();
     }
 
 
@@ -295,13 +376,25 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "getUsers", allEntries = true, cacheManager = "cacheManager"),
-                    @CacheEvict(value = "getUserLogin", key = "#deleteUserRequest.id", cacheManager = "cacheManager")
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "getUser",
+                            key = "#deleteUserRequest.getId()"
+                    ),
+                    @CacheEvict(
+                            value = "getRole",
+                            key = "#deleteUserRequest.getId()"
+                    )
             }
     )
     public void deleteUser(DeleteUserRequest deleteUserRequest) {
         String userId = deleteUserRequest.getId();
-        if (!userRepository.existsById(userId)) throw new RuntimeException("이미 존재하지 않는 userId 입니다.");
+        if (!userRepository.existsById(userId))
+            throw new UserNotFoundException("존재하지 않는 유저입니다.");
+
         userRepository.deleteById(userId);
     }
 
@@ -311,6 +404,18 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "getUsers",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "getUser",
+                            allEntries = true
+                    )
+            }
+    )
     public void updateUserInactivityStatus() {
         List<User> users = userRepository.findAll();
         users.forEach(this::checkAndUpdateInactivity);
@@ -323,10 +428,11 @@ public class UserServiceImpl implements UserService {
      * @param existedUser 휴면 상태를 확인할 사용자
      */
     protected void checkAndUpdateInactivity(User existedUser) {
-        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
         // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
-        if (existedUser.getLatestLoginAt() == null) return;
+        if ("ROLE_ADMIN".equals(existedUser.getRole().getName()))
+            return;
 
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
         if (existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
             User user = existedUser.toBuilder().status(inActiveStatus).build();
