@@ -40,7 +40,7 @@ class AdminControllerTest {
 
     @Test
     void findAllUsers() throws Exception {
-        int page = 1;
+        int page = 0;
         int size = 10;
         String userId = "test user";
         String name = "test name";
