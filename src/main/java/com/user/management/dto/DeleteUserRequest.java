@@ -13,8 +13,8 @@ import javax.validation.constraints.NotBlank;
  * @version 1.0.0
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class DeleteUserRequest {
     @NotBlank
     private String id;
