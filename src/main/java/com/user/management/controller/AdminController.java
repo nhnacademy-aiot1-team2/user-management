@@ -42,7 +42,8 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getAllUsers(pageable);
 
-        return ResponseEntity.ok().body(userPage);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userPage);
     }
 
     /**
@@ -61,7 +62,9 @@ public class AdminController {
             @PathVariable Long statusId) {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getFilteredUsersByStatus(statusId, pageable);
-        return ResponseEntity.ok().body(userPage);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userPage);
     }
 
     /**
@@ -74,7 +77,9 @@ public class AdminController {
     public ResponseEntity<Void> promoteUserToAdmin(
             @RequestBody @Valid PermitUserRequest permitUserRequest) {
         userService.promoteUser(permitUserRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -85,17 +90,27 @@ public class AdminController {
      */
     @PostMapping("/permit")
     public ResponseEntity<Void> permitUser(@RequestBody @Valid List<PermitUserRequest> permitUserRequestList) {
-        permitUserRequestList.parallelStream().forEach(userService::permitUser);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        permitUserRequestList.parallelStream()
+                .forEach(userService::permitUser);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
 
+    /**
+     * 비활성인 사용자를 활성으로 변경합니다.
+     *
+     * @param deleteUserRequestList 비활성 사용자 아이디 리스트
+     * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
+     */
     @PostMapping("/reject/delete")
     public ResponseEntity<Void> rejectDeleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
         deleteUserRequestList.stream()
                 .map(request -> new PermitUserRequest(request.getId()))
                 .forEach(userService::permitUser);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -106,7 +121,10 @@ public class AdminController {
      */
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
-        deleteUserRequestList.parallelStream().forEach(userService::deleteUser);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        deleteUserRequestList.parallelStream()
+                .forEach(userService::deleteUser);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }
