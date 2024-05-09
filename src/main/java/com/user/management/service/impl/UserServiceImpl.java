@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Cacheable(
             value = "getUsers",
-            key = "#statusId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
+            key = "'status'.concat(#statusId).concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
             unless = "#result == null"
     )
     public RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable) {
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 특정 roleId에 해당하는 사용자들의 정보를 페이징 처리하여 반환합니다. (관리자만 요청 가능)
      *
-     * @param roleId 검색하려는 사용자 role ID.
+     * @param roleId   검색하려는 사용자 role ID.
      * @param pageable 페이징 정보.
      * @return UserDataResponse 객체의 페이지.
      * @throws RuntimeException 해당 roleId가 존재하지 않을 경우 발생.
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Cacheable(
             value = "getUsers",
-            key = "#roleId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
+            key = "'role'.concat(#roleId).concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
             unless = "#result == null"
     )
     public RestPage<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable) {
