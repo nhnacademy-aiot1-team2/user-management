@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.management.dto.DeleteUserRequest;
 import com.user.management.dto.PermitUserRequest;
 import com.user.management.dto.UserDataResponse;
+import com.user.management.exception.RoleNotFoundException;
 import com.user.management.exception.StatusNotFoundException;
 import com.user.management.exception.UserNotFoundException;
 import com.user.management.page.RestPage;
@@ -127,6 +128,25 @@ class AdminControllerTest {
     }
 
     @Test
+    void findSortedUserByStatusIdStatusNotFoundException() throws Exception {
+        String userId = "test user";
+        int page = 0;
+        int size = 10;
+        long statusId = 1L;
+
+        given(userService.getFilteredUsersByStatus(anyLong(), any()))
+                .willThrow(new StatusNotFoundException("not found status"));
+
+        mockMvc.perform(get("/api/user/admin/userList/sort/status/" + statusId)
+                        .header("X-USER-ID", userId)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", equalTo("not found status")));
+    }
+
+    @Test
     void findSortedUserByRoleId() throws Exception {
         String userId = "test user";
         int page = 0;
@@ -165,22 +185,22 @@ class AdminControllerTest {
     }
 
     @Test
-    void findSortedUserStatusNotFoundException() throws Exception {
+    void findSortedUserByRoleIdStatusNotFoundException() throws Exception {
         String userId = "test user";
         int page = 0;
         int size = 10;
         long statusId = 1L;
 
-        given(userService.getFilteredUsersByStatus(anyLong(), any()))
-                .willThrow(new StatusNotFoundException("not found status"));
+        given(userService.getFilteredUsersByRole(anyLong(), any()))
+                .willThrow(new RoleNotFoundException("not found role"));
 
-        mockMvc.perform(get("/api/user/admin/userList/sort/" + statusId)
+        mockMvc.perform(get("/api/user/admin/userList/sort/role/" + statusId)
                         .header("X-USER-ID", userId)
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", equalTo("not found status")));
+                .andExpect(jsonPath("$.message", equalTo("not found role")));
     }
 
     @Test
