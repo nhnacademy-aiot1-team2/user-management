@@ -75,7 +75,7 @@ class AdminControllerTest {
 
     @Test
     void findAllUsersUserNotFoundException() throws Exception {
-        int page = 1;
+        int page = 0;
         int size = 10;
 
         given(userService.getAllUsers(any()))
@@ -92,7 +92,7 @@ class AdminControllerTest {
     @Test
     void findSortedUser() throws Exception {
         String userId = "test user";
-        int page = 1;
+        int page = 0;
         int size = 10;
         long statusId = 1L;
         String name = "test name";
@@ -129,7 +129,7 @@ class AdminControllerTest {
     @Test
     void findSortedUserStatusNotFoundException() throws Exception {
         String userId = "test user";
-        int page = 1;
+        int page = 0;
         int size = 10;
         long statusId = 1L;
 
