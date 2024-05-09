@@ -1,9 +1,7 @@
 package com.user.management.advice;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.user.management.dto.ApiExceptionDto;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,38 +24,36 @@ public class GlobalExceptionHandler {
 
     /**
      * RuntimeException을 처리하는 메소드입니다.
-     * 발생한 예외의 메시지, 상태 코드, 발생 시간을 JSON 형태로 응답 본문에 포함하여 반환합니다.
+     * 발생한 예외의 발생 시간, 메시지를 ExceptionDto 형태로 응답 본문에 포함하여 반환합니다.
      *
      * @param e 발생한 RuntimeException
      * @return 응답 본문에 에러 정보를 담은 ResponseEntity
-     * @throws JSONException JSON 객체 생성 시 발생할 수 있는 예외
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException e) throws JSONException {
-
-        JSONObject errorDetails = new JSONObject();
-        try {
-            errorDetails.put("title", e.getMessage());
-            errorDetails.put("status", HttpStatus.BAD_REQUEST.value());
-            errorDetails.put("timestamp", LocalDateTime.now().toString());
-        } catch (JSONException jsonException) {
-            jsonException.printStackTrace();
-        }
-
+    public ResponseEntity<ApiExceptionDto> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(errorDetails.toString(4));
+                .body(new ApiExceptionDto(LocalDateTime.now(), e.getMessage()));
     }
 
+    /**
+     * 유효성 검증에서 발생한 예외를 처리하기 위한 메소드입니다.
+     * 발생한 에러를 map 형태로 반환합니다.
+     *
+     * @param exception 발생한 MethodArgumentNotValidException
+     * @return 응답 본문에 에러 map을 담은 ResponseEntity
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-            MethodArgumentNotValidException exception) {
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
-        exception.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return ResponseEntity.badRequest().body(errors);
+        exception.getBindingResult()
+                .getAllErrors()
+                .forEach(error -> {
+                    String fieldName = ((FieldError) error).getField();
+                    String errorMessage = error.getDefaultMessage();
+                    errors.put(fieldName, errorMessage);
+                });
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errors);
     }
 }

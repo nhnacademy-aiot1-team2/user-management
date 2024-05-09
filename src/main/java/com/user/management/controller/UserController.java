@@ -30,7 +30,8 @@ public class UserController {
      */
     @GetMapping("/myPage")
     public ResponseEntity<UserDataResponse> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
-        return ResponseEntity.ok().body(userService.getUserById(id));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserById(id));
     }
 
     /**
@@ -42,7 +43,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         userService.createUser(userCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .build();
     }
 
     /**
@@ -53,7 +56,8 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<UserDataResponse> loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) {
-        return ResponseEntity.ok().body(userService.getUserLogin(userLoginRequest));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserLogin(userLoginRequest));
     }
 
     /**
@@ -66,7 +70,9 @@ public class UserController {
     @PutMapping("/update")
     public ResponseEntity<Void> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.updateUser(userUpdateRequest, id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -79,7 +85,9 @@ public class UserController {
     @PostMapping("/deactivate")
     public ResponseEntity<Void> deactivateUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.deactivateUser(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -90,6 +98,7 @@ public class UserController {
      */
     @GetMapping("/role")
     public ResponseEntity<RoleResponse> getRoleId(@RequestHeader(value = "X-USER-ID") String id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getRoleByUserId(id));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getRoleByUserId(id));
     }
 }
