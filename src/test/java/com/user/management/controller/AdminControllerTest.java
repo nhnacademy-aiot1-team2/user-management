@@ -90,7 +90,7 @@ class AdminControllerTest {
     }
 
     @Test
-    void findSortedUser() throws Exception {
+    void findSortedUserByStatusId() throws Exception {
         String userId = "test user";
         int page = 0;
         int size = 10;
@@ -112,7 +112,45 @@ class AdminControllerTest {
         given(userService.getFilteredUsersByStatus(anyLong(), any()))
                 .willReturn(new RestPage<>(new PageImpl<>(List.of(userDataResponse))));
 
-        mockMvc.perform(get("/api/user/admin/userList/sort/" + statusId)
+        mockMvc.perform(get("/api/user/admin/userList/sort/status/" + statusId)
+                        .header("X-USER-ID", userId)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id", equalTo(userId)))
+                .andExpect(jsonPath("$.content[0].name", equalTo(name)))
+                .andExpect(jsonPath("$.content[0].email", equalTo(email)))
+                .andExpect(jsonPath("$.content[0].roleName", equalTo(roleName)))
+                .andExpect(jsonPath("$.content[0].statusName", equalTo(statusName)))
+                .andExpect(jsonPath("$.content[0].password", equalTo(password)));
+    }
+
+    @Test
+    void findSortedUserByRoleId() throws Exception {
+        String userId = "test user";
+        int page = 0;
+        int size = 10;
+        long roleId = 1L;
+
+        String name = "test name";
+        String email = "test@gmail.com";
+        String roleName = "test role";
+        String statusName = "test status";
+        String password = "test password";
+        UserDataResponse userDataResponse = UserDataResponse.builder()
+                .id(userId)
+                .name(name)
+                .email(email)
+                .roleName(roleName)
+                .statusName(statusName)
+                .password(password)
+                .build();
+
+        given(userService.getFilteredUsersByRole(anyLong(), any()))
+                .willReturn(new RestPage<>(new PageImpl<>(List.of(userDataResponse))));
+
+        mockMvc.perform(get("/api/user/admin/userList/sort/role/" + roleId)
                         .header("X-USER-ID", userId)
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size)))

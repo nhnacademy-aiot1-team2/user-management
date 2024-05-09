@@ -47,21 +47,40 @@ public class AdminController {
     }
 
     /**
-     * 특정 상태를 가진 사용자의 정보를 페이지 별로 조회합니다.
+     * 특정 status를 가진 사용자의 정보를 페이지 별로 조회합니다.
      *
      * @param page     반환할 페이지 번호.
      * @param size     한 페이지에 포함될 항목 수.
      * @param statusId 검색할 사용자 상태 ID. // 1. 기본 , 2. 휴면, 3. 비활성화, 4. 승인대기
      * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
      */
-    @GetMapping("/userList/sort/{statusId}")
-    public ResponseEntity<Page<UserDataResponse>> findSortedUser(
-            @RequestHeader(value = "X-USER-ID", required = false) String adminUserId,
+    @GetMapping("/userList/sort/status/{statusId}")
+    public ResponseEntity<Page<UserDataResponse>> findSortedUserByStatus(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
             @PathVariable Long statusId) {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserDataResponse> userPage = userService.getFilteredUsersByStatus(statusId, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userPage);
+    }
+
+    /**
+     * 특정 role을 가진 사용자의 정보를 페이지 별로 조회합니다.
+     *
+     * @param page     반환할 페이지 번호.
+     * @param size     한 페이지에 포함될 항목 수.
+     * @param roleId 검색할 사용자 role ID. // 1. 어드민, 2. 유저
+     * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
+     */
+    @GetMapping("/userList/sort/role/{roleId}")
+    public ResponseEntity<Page<UserDataResponse>> findSortedUserByRole(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) int size,
+            @PathVariable Long roleId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserDataResponse> userPage = userService.getFilteredUsersByRole(roleId, pageable);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userPage);

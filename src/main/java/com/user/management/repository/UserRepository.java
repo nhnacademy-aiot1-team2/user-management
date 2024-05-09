@@ -39,6 +39,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.status.id = :id")
     Page<UserDataResponse> getUsersFilteredByStatusId(Pageable pageable, Long id);
 
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.role.id = :id")
+    Page<UserDataResponse> getUsersFilteredByRoleId(Pageable pageable, Long id);
+
     /**
      * 주어진 ID에 해당하는 사용자 정보를 조회하여 반환합니다.
      *

@@ -86,6 +86,27 @@ public class UserServiceImpl implements UserService {
         return new RestPage<>(userRepository.getUsersFilteredByStatusId(pageable, statusId));
     }
 
+    /**
+     * 특정 roleId에 해당하는 사용자들의 정보를 페이징 처리하여 반환합니다. (관리자만 요청 가능)
+     *
+     * @param roleId 검색하려는 사용자 role ID.
+     * @param pageable 페이징 정보.
+     * @return UserDataResponse 객체의 페이지.
+     * @throws RuntimeException 해당 roleId가 존재하지 않을 경우 발생.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "getUsers",
+            key = "#roleId.toString().concat('-').concat(#pageable.pageSize.toString()).concat('-').concat(#pageable.pageNumber)",
+            unless = "#result == null"
+    )
+    public RestPage<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable) {
+        if (!statusRepository.existsById(roleId))
+            throw new RoleNotFoundException("존재하지 않는 Role Id 입니다.");
+        return new RestPage<>(userRepository.getUsersFilteredByRoleId(pageable, roleId));
+    }
+
 
     /**
      * 주어진 ID에 해당하는 사용자의 정보를 반환하는 메소드입니다.

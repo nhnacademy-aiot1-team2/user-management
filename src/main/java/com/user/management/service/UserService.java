@@ -27,7 +27,16 @@ public interface UserService {
      * @param pageable the pageable
      * @return the filtered users by status
      */
-    Page<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
+    RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
+
+    /**
+     * Gets filtered users by role.
+     *
+     * @param roleId the role id
+     * @param pageable the pageable
+     * @return the filtered users by role
+     */
+    RestPage<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable);
 
     /**
      * Gets user by id.
