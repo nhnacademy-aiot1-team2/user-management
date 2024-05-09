@@ -1,29 +1,31 @@
-GET http://localhost:8200/api/user/myPage
-X-USER-ID:test1
+### 사용자 정보 조회
 
-###
+GET http://localhost:8200/api/user/myPage
+X-USER-ID: test
+
+### 로그인
 
 POST http://localhost:8200/api/user/login
 Content-Type: application/json
 
 {
-  "id": "admin",
+  "id": "test",
   "password": "1234"
 }
 
-###
+### 회원 가입
 
 POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "zxcv",
-  "name": "zxcv",
-  "password": "zxcv",
-  "email": "zxcv@gmail.com"
+  "id": "asdf",
+  "name": "asdf",
+  "password": "asdf",
+  "email": "asdf@gmail.com"
 }
 
-###
+### 회원 정보 수정
 
 PUT http://localhost:8200/api/user/update
 X-USER-ID:admin
@@ -35,12 +37,13 @@ Content-Type: application/json
   "email": "updatedAdmin@gmail.com"
 }
 
-###
+### 회원 비활성
 
 POST http://localhost:8200/api/user/deactivate
 X-USER-ID:asdf
 
-### userId로 role정보 가져오기
+### 권한 조회
+
 GET http://localhost:8200/api/user/role
 X-USER-ID: admin
 
