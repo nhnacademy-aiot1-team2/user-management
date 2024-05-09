@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -231,10 +230,11 @@ public class UserServiceImpl implements UserService {
         String userId = permitUserRequest.getId();
         User pendingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+        User activeUser = pendingUser.toBuilder()
+                .status(statusRepository.getActiveStatus())
+                .build();
 
-        return userRepository.save(pendingUser.toBuilder()
-                        .status(statusRepository.getActiveStatus())
-                        .build())
+        return userRepository.save(activeUser)
                 .toEntity();
     }
 
@@ -267,11 +267,13 @@ public class UserServiceImpl implements UserService {
     )
     public UserDataResponse promoteUser(PermitUserRequest permitUserRequest) {
         String userId = permitUserRequest.getId();
-        User pendingUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        User adminUser = user.toBuilder()
+                .role(roleRepository.getAdminRole())
+                .build();
 
-        return userRepository.save(pendingUser.toBuilder()
-                        .role(roleRepository.getAdminRole())
-                        .build())
+        return userRepository.save(adminUser)
                 .toEntity();
     }
 
@@ -417,8 +419,8 @@ public class UserServiceImpl implements UserService {
             }
     )
     public void updateUserInactivityStatus() {
-        List<User> users = userRepository.findAll();
-        users.forEach(this::checkAndUpdateInactivity);
+        userRepository.findAll()
+                .forEach(this::checkAndUpdateInactivity);
     }
 
     /**
@@ -428,14 +430,17 @@ public class UserServiceImpl implements UserService {
      * @param existedUser 휴면 상태를 확인할 사용자
      */
     protected void checkAndUpdateInactivity(User existedUser) {
-        // Admin을 제외한 모든 User는 회원가입 시, latestLoginAt 값을 가짐.
         if ("ROLE_ADMIN".equals(existedUser.getRole().getName()))
             return;
 
-        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+        LocalDateTime oneMonthAgo = LocalDateTime.now()
+                .minusMonths(1);
         if (existedUser.getLatestLoginAt().isBefore(oneMonthAgo)) {
             Status inActiveStatus = statusRepository.getInActiveStatus();
-            User user = existedUser.toBuilder().status(inActiveStatus).build();
+            User user = existedUser.toBuilder()
+                    .status(inActiveStatus)
+                    .build();
+
             userRepository.save(user);
         }
     }
