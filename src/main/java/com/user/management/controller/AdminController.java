@@ -5,6 +5,8 @@ import com.user.management.dto.DeleteUserRequest;
 import com.user.management.dto.PermitUserRequest;
 import com.user.management.dto.UserDataResponse;
 import com.user.management.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,8 +25,9 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/user/admin")
 @RequiredArgsConstructor
+@RequestMapping("/api/user/admin")
+@Tag(name = "Admin Rest Controller", description = "관리자 관련 API")
 public class AdminController {
     private final UserService userService;
 
@@ -36,6 +39,7 @@ public class AdminController {
      * @return 사용자 정보의 부분 리스트를 담은 ResponseEntity를 돌려줍니다.
      */
     @GetMapping("/userList")
+    @Operation(summary = "모든 사용자를 조회")
     public ResponseEntity<Page<UserDataResponse>> findAllUsers(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
@@ -55,6 +59,7 @@ public class AdminController {
      * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
      */
     @GetMapping("/userList/sort/status/{statusId}")
+    @Operation(summary = "특정 상태를 가진 사용자를 조회")
     public ResponseEntity<Page<UserDataResponse>> findSortedUserByStatus(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
@@ -69,12 +74,13 @@ public class AdminController {
     /**
      * 특정 role을 가진 사용자의 정보를 페이지 별로 조회합니다.
      *
-     * @param page     반환할 페이지 번호.
-     * @param size     한 페이지에 포함될 항목 수.
+     * @param page   반환할 페이지 번호.
+     * @param size   한 페이지에 포함될 항목 수.
      * @param roleId 검색할 사용자 role ID. // 1. 어드민, 2. 유저
      * @return UserDataResponse 리스트를 래핑한 ResponseEntity를 반환합니다.
      */
     @GetMapping("/userList/sort/role/{roleId}")
+    @Operation(summary = "특정 권한을 가진 사용자를 조히")
     public ResponseEntity<Page<UserDataResponse>> findSortedUserByRole(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
@@ -93,6 +99,7 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/promotion")
+    @Operation(summary = "사용자의 권한을 관리자로 업데이트")
     public ResponseEntity<Void> promoteUserToAdmin(
             @RequestBody @Valid PermitUserRequest permitUserRequest) {
         userService.promoteUser(permitUserRequest);
@@ -108,6 +115,7 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/permit")
+    @Operation(summary = "승인 대기 사용자를 일반 사용자로 업데이트")
     public ResponseEntity<Void> permitUser(@RequestBody @Valid List<PermitUserRequest> permitUserRequestList) {
         permitUserRequestList.parallelStream()
                 .forEach(userService::permitUser);
@@ -124,6 +132,7 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/reject/delete")
+    @Operation(summary = "비활성 사용자를 활성 상태로 업데이트")
     public ResponseEntity<Void> rejectDeleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
         deleteUserRequestList.stream()
                 .map(request -> new PermitUserRequest(request.getId()))
@@ -139,6 +148,7 @@ public class AdminController {
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @DeleteMapping("/delete")
+    @Operation(summary = "사용자를 제거")
     public ResponseEntity<Void> deleteUser(@RequestBody @Valid List<DeleteUserRequest> deleteUserRequestList) {
         deleteUserRequestList.parallelStream()
                 .forEach(userService::deleteUser);

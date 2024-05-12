@@ -71,3 +71,24 @@ server:
 jasypt:
   encryptor:
     password: TxtPassword
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans, conditions, configprops, env, health, httpexchanges, info, loggers, metrics, mappings, threaddump, shutdown
+      base-path: /user-management-server/manage
+  endpoint:
+    health:
+      show-details: always
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    disable-swagger-default-url: 'true'
+    display-request-duration: 'true'
+    groups-order: desc
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /api-docs
+  paths-to-match: /api/**
+  show-actuator: 'true'
