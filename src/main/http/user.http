@@ -19,10 +19,10 @@ POST http://localhost:8200/api/user/register
 Content-Type: application/json
 
 {
-  "id": "asdf",
-  "name": "asdf",
-  "password": "asdf",
-  "email": "asdf@gmail.com"
+  "id": "zcxv",
+  "name": "zxcv",
+  "password": "zxcv",
+  "email": "zxcv@gmail.com"
 }
 
 ### 회원 정보 수정
