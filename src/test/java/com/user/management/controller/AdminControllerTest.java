@@ -235,14 +235,14 @@ class AdminControllerTest {
     @Test
     void promoteUserToAdminUserNotFoundException() throws Exception {
         String userId = "test user";
-        PermitUserRequest permitUserRequest = new PermitUserRequest(userId);
+        PermitUserRequest promotionUserRequest = new PermitUserRequest(userId);
         ObjectMapper objectMapper = new ObjectMapper();
 
-        given(userService.permitUser(any()))
+        given(userService.promoteUser(any()))
                 .willThrow(new UserNotFoundException(userId));
 
         mockMvc.perform(post("/api/user/admin/promotion")
-                        .content(objectMapper.writeValueAsString(List.of(permitUserRequest)))
+                        .content(objectMapper.writeValueAsString(List.of(promotionUserRequest)))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
