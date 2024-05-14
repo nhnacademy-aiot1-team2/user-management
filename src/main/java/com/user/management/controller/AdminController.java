@@ -103,7 +103,7 @@ public class AdminController {
     public ResponseEntity<Void> promoteUserToAdmin(
             @RequestBody @Valid List<PermitUserRequest> permitUserRequestList) {
         permitUserRequestList.parallelStream()
-                .forEach(userService::permitUser);
+                .forEach(userService::promoteUser);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
