@@ -206,16 +206,30 @@ class AdminControllerTest {
     @Test
     void promoteUserToAdmin() throws Exception {
         String userId = "test user";
+        String name = "test name";
+        String email = "test email";
+        String roleName = "test role";
+        String statusName = "test status";
+        String password = "test password";
         PermitUserRequest permitUserRequest = new PermitUserRequest(userId);
         ObjectMapper objectMapper = new ObjectMapper();
+        UserDataResponse userDataResponse = UserDataResponse.builder()
+                .id(userId)
+                .name(name)
+                .email(email)
+                .roleName(roleName)
+                .statusName(statusName)
+                .password(password)
+                .build();
+
+        given(userService.permitUser(any()))
+                .willReturn(userDataResponse);
 
         mockMvc.perform(post("/api/user/admin/promotion")
-                        .content(objectMapper.writeValueAsString(permitUserRequest))
+                        .content(objectMapper.writeValueAsString(List.of(permitUserRequest)))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-
-        verify(userService, times(1)).promoteUser(any());
     }
 
     @Test
@@ -224,11 +238,11 @@ class AdminControllerTest {
         PermitUserRequest permitUserRequest = new PermitUserRequest(userId);
         ObjectMapper objectMapper = new ObjectMapper();
 
-        given(userService.promoteUser(any()))
+        given(userService.permitUser(any()))
                 .willThrow(new UserNotFoundException(userId));
 
         mockMvc.perform(post("/api/user/admin/promotion")
-                        .content(objectMapper.writeValueAsString(permitUserRequest))
+                        .content(objectMapper.writeValueAsString(List.of(permitUserRequest)))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())

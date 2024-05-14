@@ -17,9 +17,11 @@ Accept: application/json
 POST http://localhost:8200/api/user/admin/promotion
 Content-Type: application/json
 
-{
-  "id": "zxcv"
-}
+[
+  {
+    "id": "jjunho50"
+  }
+]
 
 ### 회원 가입 승인
 
@@ -28,10 +30,7 @@ Content-Type: application/json
 
 [
   {
-    "id": "asdf"
-  },
-  {
-    "id": "zxcv"
+    "id": "jjunho50"
   }
 ]
 

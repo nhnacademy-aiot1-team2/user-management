@@ -95,14 +95,15 @@ public class AdminController {
     /**
      * 일반 사용자를 관리자로 진급시킵니다.
      *
-     * @param permitUserRequest 관리자로 진급시킬 사용자의 정보를 포함하는 요청 본문.
+     * @param permitUserRequestList 관리자로 진급시킬 사용자의 정보를 포함하는 요청 본문.
      * @return 상태 코드 204를 포함하는 응답 엔티티를 반환합니다.
      */
     @PostMapping("/promotion")
     @Operation(summary = "사용자의 권한을 관리자로 업데이트")
     public ResponseEntity<Void> promoteUserToAdmin(
-            @RequestBody @Valid PermitUserRequest permitUserRequest) {
-        userService.promoteUser(permitUserRequest);
+            @RequestBody @Valid List<PermitUserRequest> permitUserRequestList) {
+        permitUserRequestList.parallelStream()
+                .forEach(userService::permitUser);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
