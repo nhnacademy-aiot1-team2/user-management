@@ -1,5 +1,6 @@
 package com.user.management.service.impl;
 
+import com.user.management.dto.UserLoginRequest;
 import com.user.management.entity.Provider;
 import com.user.management.entity.User;
 import com.user.management.repository.ProviderRepository;
@@ -61,7 +62,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         String nameKey = userRequest.getClientRegistration().getClientId();
         Provider provider = providerRepository.findByName(nameKey).orElseThrow(ProviderNotFoundException::new);
+
         String username = provider.getId() + "_" + providerId; //중복이 발생하지 않도록 provider와 providerId를 조합
+        String password = encoder.encode(username);
 
         User existedUser = userRepository.findById(username).orElse(null);
         if (existedUser == null) {
@@ -69,7 +72,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .id(username)
                     .name(username)
                     .email(email)
-                    .password(encoder.encode(username))
+                    .password(password)
                     .role(roleRepository.getUserRole())
                     .status(statusRepository.getPendingStatus())
                     .createdAt(LocalDateTime.now())

@@ -13,9 +13,22 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * Redis 연결과 관련된 설정을 담당하는 클래스입니다.
+ * 캐시를 사용할 수 있도록 @EnableCaching를 통해 캐시를 활성화 합니다.
+ * @author parksangwon
+ */
 @Configuration
 @EnableCaching
 public class RedisConfig {
+
+    /**
+     * RedisConnectionFactory를 통해 RedisCacheManager를 설정하고 생성합니다.
+     * RedisCacheManager는 캐시 연산에 사용됩니다.
+     *
+     * @param redisConnectionFactory Redis 연결을 설정하기 위한 인터페이스
+     * @return 캐시 작업을 위해 구성된 RedisCacheManager
+     */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheManager.RedisCacheManagerBuilder builder =
