@@ -9,11 +9,10 @@ spring:
       client:
         registration:
           github:
-            client-secret: ENC(4R2T+IHOwHiCCiFo1Ncg+NMRfFWUtjoOq/cRO8SLJLjWNx5dtE4MwRFEMOd+qto+cCcO5YO6IKE=)
-            redirect-uri: https://contxt.co.kr/login/oauth2/code/github
-            client-id: ENC(CdolCNhFbiYce45++r5JJq4/Pj9jv8TRbdhMNfLlfB4=)
+            client-secret: e8b14a3ade7745c65b13c9a36b8e2970cdb263ef
+            client-id: Ov23liJHzRh0nm6cVdNW
+            authorization-grant-type: authorization_code
           google:
-            redirect-uri: https://contxt.co.kr/login/oauth2/code/google
             client-id: ENC(Q/bpGndqp7nR//xD6t/C4dfFnnQYUDjVNCxz5jrxEmxiMO7Bb5pkcv60v7AS6kGK6hC4FYKbW06fEKVIaqSRd3qVg9sAiou25W72itbDI+ZyGQjRJCUJKg==)
             client-secret: ENC(t0NV6jS9CT+O1vJ8qhEoeRh+ZpBTrawAcz29VFB6Sx3aGnw3vWgVzEpH5Fp53D7j)
             scope: profile, email
