@@ -1,5 +1,6 @@
 package com.user.management.config;
 
+import com.user.management.handler.CustomOauth2SuccessHandler;
 import com.user.management.service.impl.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final OAuth2UserService oAuth2UserService;
+    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
 
     /**
      * HttpSecurity 설정을 이용해 SecurityFilterChain Bean을 제공합니다.
@@ -38,6 +40,9 @@ public class SecurityConfig {
                 .anyRequest().permitAll() //나머지 uri는 모든 접근 허용
                 .and().oauth2Login()
                 .userInfoEndpoint()//로그인 완료 후 회원 정보 받기
-                .userService(oAuth2UserService).and().and().build(); //
+                .userService(oAuth2UserService)
+                .and()
+                .successHandler(customOauth2SuccessHandler)
+                .and().build();
     }
 }
