@@ -10,6 +10,6 @@ spring:
       client:
         registration:
           github:
-            redirect-uri: http://localhost:8200/login/oauth2/code/github
+            redirect-uri: http://localhost:8000/login/oauth2/code/github
           google:
-            redirect-uri: http://localhost:8200/login/oauth2/code/google
+            redirect-uri: http://localhost:8000/login/oauth2/code/google
