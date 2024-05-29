@@ -33,13 +33,13 @@ public interface UserRepository extends JpaRepository<User, String> {
      *
      * @return List<UserDataResponse> // Only ROLE_ADMIN
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u")
     Page<UserDataResponse> getAllUserData(Pageable pageable);
 
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.status.id = :id")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.status.id = :id")
     Page<UserDataResponse> getUsersFilteredByStatusId(Pageable pageable, Long id);
 
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.role.id = :id")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.role.id = :id")
     Page<UserDataResponse> getUsersFilteredByRoleId(Pageable pageable, Long id);
 
     /**
@@ -48,7 +48,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @param userId 사용자 ID
      * @return Optional<UserDataResponse>
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.id = :id")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.id = :id")
     Optional<UserDataResponse> getUserById(@Param("id") String userId);
 
     @Query("SELECT u FROM User u WHERE u.email = :email")

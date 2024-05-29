@@ -22,4 +22,5 @@ public class UserDataResponse {
     private String roleName;
     private String statusName;
     private String password;
+    private String provider;
 }
