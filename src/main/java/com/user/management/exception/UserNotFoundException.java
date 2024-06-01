@@ -7,6 +7,12 @@ package com.user.management.exception;
  * @version 1.0.0
  */
 public class UserNotFoundException extends RuntimeException {
+
+    /**
+     * 예외 발생 아이디를 가지는 예외 생성자
+     *
+     * @param id 예외 발생 아이디
+     */
     public UserNotFoundException(String id) {
         super(id + "는 존재하지 않는 userId 입니다.");
     }

@@ -7,7 +7,9 @@ package com.user.management.exception;
  * @version 1.0.0
  */
 public class UserOnlyUpdateOwnDataException extends RuntimeException {
-
+    /**
+     * 예외 생성자
+     */
     public UserOnlyUpdateOwnDataException() {
         super("본인의 데이터만 수정할 수 있습니다.");
     }
