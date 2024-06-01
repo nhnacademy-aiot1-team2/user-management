@@ -2,18 +2,17 @@ package com.user.management.service;
 
 import com.user.management.dto.*;
 import com.user.management.page.RestPage;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * The interface User service.
+ * 사용자 관련 처리를 수행하는 서비스 인터페이
  *
  * @author parksangwon
  * @version 1.0.0
  */
 public interface UserService {
     /**
-     * Gets all users.
+     * 모든 사용자를 조회하는 메서
      *
      * @param pageable the pageable
      * @return the all users
@@ -21,7 +20,7 @@ public interface UserService {
     RestPage<UserDataResponse> getAllUsers(Pageable pageable);
 
     /**
-     * Gets filtered users by status.
+     * 상태가 일치하는 사용자를 조회하는 메서드
      *
      * @param statusId the status id
      * @param pageable the pageable
@@ -30,16 +29,16 @@ public interface UserService {
     RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
 
     /**
-     * Gets filtered users by role.
+     * 권한이 일치하는 사용자를 조회하는 메서
      *
-     * @param roleId the role id
+     * @param roleId   the role id
      * @param pageable the pageable
      * @return the filtered users by role
      */
     RestPage<UserDataResponse> getFilteredUsersByRole(Long roleId, Pageable pageable);
 
     /**
-     * Gets user by id.
+     * 아이디가 일치하는 사용자르 조회하는 메서드
      *
      * @param id the id
      * @return the user by id
@@ -47,7 +46,7 @@ public interface UserService {
     UserDataResponse getUserById(String id);
 
     /**
-     * Gets user login.
+     * 로그인 정보를 받아 해당하는 사용자 정보를 반환하는 메서드
      *
      * @param userLoginRequest the user login request
      * @return the user login
@@ -55,28 +54,28 @@ public interface UserService {
     UserDataResponse getUserLogin(UserLoginRequest userLoginRequest);
 
     /**
-     * Permit user.
+     * 사용자 상태를 수정하는 메서
      *
      * @param permitUserRequest the permit user request
      */
     UserDataResponse permitUser(PermitUserRequest permitUserRequest);
 
     /**
-     * Promote user.
+     * 사용자 상태를 수정하는 메서드
      *
      * @param permitUserRequest the permit user request
      */
     UserDataResponse promoteUser(PermitUserRequest permitUserRequest);
 
     /**
-     * Create user.
+     * 사용자를 추가하는 메서드
      *
      * @param userCreateRequest the user create request
      */
     UserDataResponse createUser(UserCreateRequest userCreateRequest);
 
     /**
-     * Update user.
+     * 사용자를 수정하는 메서드
      *
      * @param userUpdateRequest the user update request
      * @param userId            the user id
@@ -84,14 +83,14 @@ public interface UserService {
     UserDataResponse updateUser(UserUpdateRequest userUpdateRequest, String userId);
 
     /**
-     * Deactivate user.
+     * 사용자를 비활성화하는 메서드
      *
      * @param userId the user id
      */
     UserDataResponse deactivateUser(String userId);
 
     /**
-     * Delete user.
+     * 사용자를 제거하는 메서드`
      *
      * @param deleteUserRequest the delete user request
      */
