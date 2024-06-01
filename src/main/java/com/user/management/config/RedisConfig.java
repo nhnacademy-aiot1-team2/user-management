@@ -13,9 +13,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * Redis 캐싱 관련 설정을 위한 Config 클래스
+ *
+ * @author parksangwon
+ * @version 1.0.0
+ */
 @Configuration
 @EnableCaching
 public class RedisConfig {
+    /**
+     * 캐시 매니저를 반환하는 빈 메서드
+     *
+     * @param redisConnectionFactory the redis connection factory
+     * @return the cache manager
+     */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheManager.RedisCacheManagerBuilder builder =

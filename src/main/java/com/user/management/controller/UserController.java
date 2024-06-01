@@ -2,10 +2,14 @@ package com.user.management.controller;
 
 import com.user.management.dto.*;
 import com.user.management.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 사용자 관리를 위한 REST API 컨트롤러
@@ -14,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/user")
 @RequiredArgsConstructor
+@RequestMapping("/api/user")
+@Tag(name = "User Rest Controller", description = "사용자 관련 API")
 public class UserController {
 
     private final UserService userService;
@@ -27,8 +32,10 @@ public class UserController {
      * @return 검색된 사용자 정보
      */
     @GetMapping("/myPage")
+    @Operation(summary = "자신의 정보를 조회")
     public ResponseEntity<UserDataResponse> findUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
-        return ResponseEntity.ok().body(userService.getUserById(id));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserById(id));
     }
 
     /**
@@ -38,9 +45,12 @@ public class UserController {
      * @return 상태 코드 201 (생성됨)
      */
     @PostMapping("/register")
-    public ResponseEntity<Void> createUser(@RequestBody UserCreateRequest userCreateRequest) {
+    @Operation(summary = "새로운 사용자를 등록")
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         userService.createUser(userCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .build();
     }
 
     /**
@@ -50,8 +60,10 @@ public class UserController {
      * @return 로그인한 사용자 정보
      */
     @PostMapping("/login")
-    public ResponseEntity<UserDataResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
-        return ResponseEntity.ok().body(userService.getUserLogin(userLoginRequest));
+    @Operation(summary = "사용자 로그인")
+    public ResponseEntity<UserDataResponse> loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserLogin(userLoginRequest));
     }
 
     /**
@@ -62,9 +74,12 @@ public class UserController {
      * @return 상태 코드 204 (내용 없음)
      */
     @PutMapping("/update")
-    public ResponseEntity<Void> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
+    @Operation(summary = "사용자 정보 업데이트")
+    public ResponseEntity<Void> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest, @RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.updateUser(userUpdateRequest, id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -75,9 +90,12 @@ public class UserController {
      * @return 상태 코드 204 (내용 없음)
      */
     @PostMapping("/deactivate")
+    @Operation(summary = "사용자 상태 비활성 업데이트")
     public ResponseEntity<Void> deactivateUser(@RequestHeader(value = "X-USER-ID", required = false) String id) {
         userService.deactivateUser(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
@@ -87,7 +105,9 @@ public class UserController {
      * @return RoleResponse
      */
     @GetMapping("/role")
+    @Operation(summary = "사용자 권한 조회")
     public ResponseEntity<RoleResponse> getRoleId(@RequestHeader(value = "X-USER-ID") String id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getRoleByUserId(id));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getRoleByUserId(id));
     }
 }

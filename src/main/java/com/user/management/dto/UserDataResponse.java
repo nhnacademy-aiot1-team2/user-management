@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserDataResponse {
     private String id;
     private String name;
@@ -22,4 +22,5 @@ public class UserDataResponse {
     private String roleName;
     private String statusName;
     private String password;
+    private String provider;
 }

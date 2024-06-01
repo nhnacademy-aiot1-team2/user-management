@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
     private static final String ADMIN = "admin";
+    private static final String PASSWORD = "1234";
 
     private final StatusRepository statusRepository;
     private final RoleRepository roleRepository;
@@ -77,7 +78,7 @@ public class DataLoader implements CommandLineRunner {
 
             userRepository.save(User.builder()
                     .id(ADMIN)
-                    .password(passwordEncoder.encode(ADMIN))
+                    .password(passwordEncoder.encode(PASSWORD))
                     .name(ADMIN)
                     .createdAt(LocalDateTime.now()) // 계정 생성 시각
                     .latestLoginAt(null) //

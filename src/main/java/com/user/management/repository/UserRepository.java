@@ -31,13 +31,28 @@ public interface UserRepository extends JpaRepository<User, String> {
     /**
      * 모든 사용자 정보를 조회하여 반환합니다. (어드민 유저만 조회 가능)
      *
-     * @return List<UserDataResponse> // Only ROLE_ADMIN
+     * @return 사용자 페이지 객체
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u")
     Page<UserDataResponse> getAllUserData(Pageable pageable);
 
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.status.id = :id")
+    /**
+     * 상태가 일치하는 사용자의 정보를 조회하여 반환
+     *
+     * @param id status id
+     * @return 사용자 페이지 객체
+     */
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.status.id = :id")
     Page<UserDataResponse> getUsersFilteredByStatusId(Pageable pageable, Long id);
+
+    /**
+     * 권한이 일치하는 사용자즤 정보를 조회하여 반환
+     *
+     * @param id 권한 아이디
+     * @return 사용자 페이지 객체
+     */
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.role.id = :id")
+    Page<UserDataResponse> getUsersFilteredByRoleId(Pageable pageable, Long id);
 
     /**
      * 주어진 ID에 해당하는 사용자 정보를 조회하여 반환합니다.
@@ -45,9 +60,15 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @param userId 사용자 ID
      * @return Optional<UserDataResponse>
      */
-    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password) FROM User u WHERE u.id = :id")
+    @Query("SELECT new com.user.management.dto.UserDataResponse(u.id, u.name, u.email, u.role.name, u.status.name, u.password, u.provider.id) FROM User u WHERE u.id = :id")
     Optional<UserDataResponse> getUserById(@Param("id") String userId);
 
+    /**
+     * 이메일이 일치하는 사용자를 조회하여 반환
+     *
+     * @param email 이메일
+     * @return 사용자
+     */
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> getByEmail(@Param("email") String email);
 }

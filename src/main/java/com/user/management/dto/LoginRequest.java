@@ -1,21 +1,21 @@
 package com.user.management.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotBlank;
+import lombok.Setter;
 
 /**
- * The type Delete user request.
+ * 로그인 할 아이디와 패스워드를 저장하는 dto
  *
  * @author parksangwon
  * @version 1.0.0
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeleteUserRequest {
-    @NotBlank
-    private String id;
+public class LoginRequest {
+    String id;
+    String password;
 }

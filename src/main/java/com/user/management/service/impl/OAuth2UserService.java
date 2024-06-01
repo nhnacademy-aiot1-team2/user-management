@@ -49,7 +49,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
      *                                       유효하지 않은 OAuth2 요청이 수신된 경우 던져집니다.
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String providerId = oAuth2User.getAttribute("sub"); // GoogleId
@@ -71,7 +71,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .email(email)
                     .password(encoder.encode(username))
                     .role(roleRepository.getUserRole())
-                    .status(statusRepository.getActiveStatus())
+                    .status(statusRepository.getPendingStatus())
                     .createdAt(LocalDateTime.now())
                     .latestLoginAt(LocalDateTime.now())
                     .provider(provider).build();
