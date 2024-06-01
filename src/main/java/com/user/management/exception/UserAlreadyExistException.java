@@ -8,6 +8,11 @@ package com.user.management.exception;
  */
 public class UserAlreadyExistException extends RuntimeException {
 
+    /**
+     * 예외 발생 아이디를 가지는 생성자
+     *
+     * @param id 예외 발생 아이디
+     */
     public UserAlreadyExistException(String id) {
         super(id + "는 이미 존재하는 유저 아이디 입니다.");
     }
