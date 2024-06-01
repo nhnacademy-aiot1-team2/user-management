@@ -5,14 +5,14 @@ import com.user.management.page.RestPage;
 import org.springframework.data.domain.Pageable;
 
 /**
- * 사용자 관련 처리를 수행하는 서비스 인터페이
+ * 사용자 관련 처리를 수행하는 서비스 인터페이스
  *
  * @author parksangwon
  * @version 1.0.0
  */
 public interface UserService {
     /**
-     * 모든 사용자를 조회하는 메서
+     * 모든 사용자를 조회하는 메서드
      *
      * @param pageable the pageable
      * @return the all users
@@ -29,7 +29,7 @@ public interface UserService {
     RestPage<UserDataResponse> getFilteredUsersByStatus(Long statusId, Pageable pageable);
 
     /**
-     * 권한이 일치하는 사용자를 조회하는 메서
+     * 권한이 일치하는 사용자를 조회하는 메서드
      *
      * @param roleId   the role id
      * @param pageable the pageable
@@ -54,7 +54,7 @@ public interface UserService {
     UserDataResponse getUserLogin(UserLoginRequest userLoginRequest);
 
     /**
-     * 사용자 상태를 수정하는 메서
+     * 사용자 상태를 수정하는 메서드
      *
      * @param permitUserRequest the permit user request
      */
@@ -90,7 +90,7 @@ public interface UserService {
     UserDataResponse deactivateUser(String userId);
 
     /**
-     * 사용자를 제거하는 메서드`
+     * 사용자를 제거하는 메서드
      *
      * @param deleteUserRequest the delete user request
      */

@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Oauth 로그인 성공시 필요한 작업을 수행하는 랜들러 클래
+ * Oauth 로그인 성공시 필요한 작업을 수행하는 랜들러 클래스
  *
  * @author parksangwon
  * @version 1.0.0
