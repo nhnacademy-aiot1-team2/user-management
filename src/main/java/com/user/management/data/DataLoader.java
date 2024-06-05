@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
     private static final String ADMIN = "admin";
-    private static final String PASSWORD = "1234";
+    private static final String PASSWORD = "admin";
 
     private final StatusRepository statusRepository;
     private final RoleRepository roleRepository;
