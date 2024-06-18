@@ -1,8 +1,8 @@
 spring:
   redis:
-    host: 133.186.244.96
+    host: 133.186.241.167
     password: '*N2vya7H@muDTwdNMR!'
-    database: '11'
+    database: '261'
     port: '6379'
   security:
     oauth2:
