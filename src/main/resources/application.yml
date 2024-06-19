@@ -29,7 +29,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: LiKvKi*5SUyHGipX
     username: aiot01_txt
-    url: jdbc:mysql://133.186.241.167:3306/aiot01_txt?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://133.186.241.167:3306/aiot01_txt?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
   jpa:
     hibernate:
       naming:
