@@ -18,14 +18,14 @@ spring:
             scope: profile, email
   datasource:
     dbcp2:
-      max-idle: '200'
+      max-idle: '10'
       test-on-borrow: 'true'
-      max-total: '200'
+      max-total: '10'
       validation-query: select 1
       url: jdbc:mysql://133.186.241.167:3306/aiot01_txt
-      initial-size: '200'
+      initial-size: '10'
       max-wait-millis: '2000'
-      min-idle: '200'
+      min-idle: '10'
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: LiKvKi*5SUyHGipX
     username: aiot01_txt
