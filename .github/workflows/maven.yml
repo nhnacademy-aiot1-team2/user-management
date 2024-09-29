@@ -51,7 +51,7 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }} .
+          docker buildx build --platform linux/arm64 -t ${{ secrets.DOCKER_REPO }} --push .
           docker push ${{ secrets.DOCKER_REPO }}
 
       - name: executing remote ssh commands using password
