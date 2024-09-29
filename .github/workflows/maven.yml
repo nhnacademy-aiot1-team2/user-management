@@ -65,4 +65,4 @@ jobs:
             docker rm -f $(docker ps -q -f "name=TxT-management")
             docker rmi $(docker images ${{ secrets.DOCKER_REPO }} -q)
             docker pull ${{ secrets.DOCKER_REPO }}
-            docker run -d -p 8200:8200 --name TxT-management ${{ secrets.DOCKER_REPO }}
+            docker run -d --network config_txt -p 8200:8200 --name TxT-management ${{ secrets.DOCKER_REPO }}
